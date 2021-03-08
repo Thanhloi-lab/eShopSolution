@@ -20,7 +20,7 @@ namespace eShopSolution.BackendApi.Controllers
 
         public IActionResult Index()
         {
-            return Ok();
+            return Ok("Home Index");
         }
     }
 }

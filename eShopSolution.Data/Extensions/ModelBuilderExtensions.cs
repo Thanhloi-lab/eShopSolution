@@ -38,7 +38,7 @@ namespace eShopSolution.Data.Extensions
                      SortOrder = 2,
                      Status = Status.Active
                  });
-
+            
             modelBuilder.Entity<CategoryTranslation>().HasData(
                   new CategoryTranslation() { Id = 1, CategoryId = 1, Name = "Áo nam", LanguageId = "vi-VN", SeoAlias = "ao-nam", SeoDescription = "Sản phẩm áo thời trang nam", SeoTitle = "Sản phẩm áo thời trang nam" },
                   new CategoryTranslation() { Id = 2, CategoryId = 1, Name = "Men Shirt", LanguageId = "en-US", SeoAlias = "men-shirt", SeoDescription = "The shirt products for men", SeoTitle = "The shirt products for men" },
