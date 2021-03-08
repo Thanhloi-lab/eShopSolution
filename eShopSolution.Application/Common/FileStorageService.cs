@@ -31,9 +31,12 @@ namespace eShopSolution.Application.Common
         public async Task SaveFileAsync(Stream mediaBinaryStream, string fileName)
         {
             var filePath = Path.Combine(_userContentFolder, fileName);
-            using var outPut = new FileStream(filePath, FileMode.Create);
-            await mediaBinaryStream.CopyToAsync(outPut);
-
+            if (Directory.Exists(_userContentFolder) == false)
+            {
+                Directory.CreateDirectory(_userContentFolder);
+            }
+            var output = new FileStream(filePath, FileMode.Create);
+            await mediaBinaryStream.CopyToAsync(output);
         }
     }
 }
