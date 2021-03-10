@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:56733",
-      "sslPort": 44356
+      "applicationUrl": "http://localhost:1285",
+      "sslPort": 44397
     }
   },
   "profiles": {
@@ -15,11 +15,10 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "eShopSolution.BackendApi": {
+    "eShopSolution.AdminApp": {
       "commandName": "Project",
-      "launchBrowser": false,
-      "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:5001",
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:5002",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
