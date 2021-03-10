@@ -17,75 +17,64 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace eShopSolution.AdminApp.Controllers
 {
-    public class UserController : Controller
+    public class LoginController : Controller
     {
         private readonly IUserApiClient _userApiClient;
         private readonly IConfiguration _configuration;
-        public UserController(IUserApiClient userApiClient, IConfiguration configuration)
+
+        public LoginController(IUserApiClient userApiClient,
+            IConfiguration configuration)
         {
             _userApiClient = userApiClient;
             _configuration = configuration;
         }
 
-        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
-        {
-            var sessions = HttpContext.Session.GetString("Token");
-            var request = new GetUserPagingRequest()
-            {
-                BearerToken = sessions,
-                Keyword = keyword,
-                PageIndex = pageIndex,
-                PageSize = pageSize
-            };
-            var data = await _userApiClient.GetUsersPaging(request);
-            return View(data);
-        }
         [HttpGet]
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Index()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return View();
         }
+
         [HttpPost]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Index(LoginRequest request)
         {
             if (!ModelState.IsValid)
                 return View(ModelState);
+
             var token = await _userApiClient.Authenticate(request);
-            var userPrinciple = this.ValidateToken(token);
-            var authProperties = new AuthenticationProperties()
+
+            var userPrincipal = this.ValidateToken(token);
+            var authProperties = new AuthenticationProperties
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                IsPersistent = true
+                IsPersistent = false
             };
             HttpContext.Session.SetString("Token", token);
             await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                userPrinciple,
-                authProperties);
-                
-            return RedirectToAction("index", "home");
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        userPrincipal,
+                        authProperties);
+
+            return RedirectToAction("Index", "Home");
         }
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("login", "user");
-        }
+
         private ClaimsPrincipal ValidateToken(string jwtToken)
         {
             IdentityModelEventSource.ShowPII = true;
+
             SecurityToken validatedToken;
             TokenValidationParameters validationParameters = new TokenValidationParameters();
 
             validationParameters.ValidateLifetime = true;
+
             validationParameters.ValidAudience = _configuration["Tokens:Issuer"];
             validationParameters.ValidIssuer = _configuration["Tokens:Issuer"];
             validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
 
-            ClaimsPrincipal claimsPrinciple = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
-            
-            return claimsPrinciple;
+            ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
+
+            return principal;
         }
     }
 }

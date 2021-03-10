@@ -27,29 +27,32 @@ namespace eShopSolution.AdminApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddHttpClient();
-
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
-            {
-                options.LoginPath = "/User/Login/";
-                options.AccessDeniedPath = "/User/Forbidden/";
-            });
-
-            services.AddControllersWithViews()
-                     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
-
+                {
+                    options.LoginPath = "/user/login";
+                    options.AccessDeniedPath = "/user/Forbidden";
+                });
             services.AddTransient<IUserApiClient, UserApiClient>();
 
-            IMvcBuilder builder = services.AddRazorPages();
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-#if DEBUG
-            if (environment == Environments.Development)
+            services.AddSession(options =>
             {
-                builder.AddRazorRuntimeCompilation();
-            }
-#endif
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+            });
+            services.AddControllersWithViews()
+                .AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>()); ;
+            
+            IMvcBuilder builder = services.AddRazorPages();
+            var enviroment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            #if DEBUG
+                if (enviroment == Environments.Development)
+                {
+                    builder.AddRazorRuntimeCompilation();
+                }
+            #endif
+                
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,13 +70,10 @@ namespace eShopSolution.AdminApp
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseAuthentication();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
