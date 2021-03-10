@@ -28,24 +28,28 @@ namespace eShopSolution.AdminApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
+
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
-                {
-                    options.LoginPath = "/user/login";
-                    options.AccessDeniedPath = "/user/Forbidden";
-                });
-            services.AddTransient<IUserApiClient, UserApiClient>();
+            {
+                options.LoginPath = "/User/Login/";
+                options.AccessDeniedPath = "/User/Forbidden/";
+            });
+
             services.AddControllersWithViews()
-                .AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>()); ;
+                     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+
+            services.AddTransient<IUserApiClient, UserApiClient>();
+
             IMvcBuilder builder = services.AddRazorPages();
-            var enviroment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            #if DEBUG
-                if (enviroment == Environments.Development)
-                {
-                    builder.AddRazorRuntimeCompilation();
-                }
-            #endif
-                
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+#if DEBUG
+            if (environment == Environments.Development)
+            {
+                builder.AddRazorRuntimeCompilation();
+            }
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,8 +67,11 @@ namespace eShopSolution.AdminApp
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
             app.UseAuthentication();
+
             app.UseRouting();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

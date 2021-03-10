@@ -48,8 +48,7 @@ namespace eShopSolution.BackendApi
                 .AddDefaultTokenProviders();
             //declare DI
             services.AddTransient<IStorageService, FileStorageService>();
-            services.AddTransient<IPuclicProductService, PublicProductService>();
-            services.AddTransient<IManageProductService, ManageProductService>();
+            services.AddTransient<IProductService, ProductService>();
             services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
@@ -137,13 +136,11 @@ namespace eShopSolution.BackendApi
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
             app.UseAuthentication();
             app.UseRouting();
-            
-            app.UseAuthorization();
-            //
-            
 
+            app.UseAuthorization();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
