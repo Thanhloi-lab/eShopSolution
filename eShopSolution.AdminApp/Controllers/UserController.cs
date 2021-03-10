@@ -32,7 +32,7 @@ namespace eShopSolution.AdminApp.Controllers
             return View();
         }
 
-        [HttpGet]
+        [HttpGet("User/login")]
         public async Task<IActionResult> Login()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
