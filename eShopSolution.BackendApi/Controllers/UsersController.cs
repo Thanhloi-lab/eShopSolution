@@ -16,6 +16,7 @@ namespace eShopSolution.BackendApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+
         public UsersController(IUserService userService)
         {
             _userService = userService;
@@ -29,13 +30,15 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest(ModelState);
 
             var resultToken = await _userService.Authenticate(request);
+
             if (string.IsNullOrEmpty(resultToken))
-                return BadRequest("UserName or password is incorrect.");
+            {
+                return BadRequest("Username or password is incorrect.");
+            }
             return Ok(resultToken);
         }
 
-
-        [HttpPost("register")]
+        [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -44,15 +47,17 @@ namespace eShopSolution.BackendApi.Controllers
 
             var result = await _userService.Register(request);
             if (!result)
+            {
                 return BadRequest("Register is unsuccessful.");
+            }
             return Ok();
         }
-        //http://localhost/api/users/paing?pageIndex=1&pageSize=10
+
+        //http://localhost/api/users/paging?pageIndex=1&pageSize=10&keyword=
         [HttpGet("paging")]
-        public async Task<IActionResult> Get([FromQuery] GetUserPagingRequest request)
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
         {
             var products = await _userService.GetUserPaging(request);
-
             return Ok(products);
         }
     }
