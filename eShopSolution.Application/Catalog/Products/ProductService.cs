@@ -17,11 +17,11 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Application.Catalog.Products
 {
-    public class ManageProductService : IManageProductService
+    public class ProductService : IProductService
     {
         public EShopDbContext _context;
         public IStorageService _storageService;
-        public ManageProductService(EShopDbContext context, IStorageService storageService)
+        public ProductService(EShopDbContext context, IStorageService storageService)
         {
             _context = context;
             _storageService = storageService;
@@ -352,7 +352,86 @@ namespace eShopSolution.Application.Catalog.Products
             await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
             return fileName;
         }
+        public async Task<List<ProductViewModel>> GetAll(string languageId)
+        {
+            /*
+            query = select *
+                from products as p, producttranslations as pt, productincategories as pic, categories as c
+                where p.id = pt.productID AND p.id = pic.productID AND c.id = pic.categoryId 
+            */
+            var query = from p in _context.Products
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId
+                        join c in _context.Categories on pic.CategoryId equals c.Id
+                        where pt.LanguageId == languageId
+                        select new { p, pt, pic };
 
-        
+            var data = await query.Select(x => new ProductViewModel()
+            {
+                Id = x.p.Id,
+                Name = x.pt.Name,
+                Price = x.p.Price,
+                OriginalPrice = x.p.OriginalPrice,
+                Stock = x.p.Stock,
+                ViewCount = x.p.ViewCount,
+                Description = x.pt.Description,
+                DateCreated = x.p.DateCreated,
+                Details = x.pt.Details,
+                SeoDescription = x.pt.SeoDescription,
+                LanguageId = x.pt.LanguageId,
+                SeoAlias = x.pt.SeoAlias,
+                SeoTitle = x.pt.SeoTitle
+            }).ToListAsync();
+            return data;
+        }
+
+        public async Task<PagedResult<ProductViewModel>> GetAllByCategoryId(GetProductPagingRequest request, string languageId)
+        {
+            /*
+            query = select *
+                from products as p, producttranslations as pt, productincategories as pic, categories as c
+                where p.id = pt.productID AND p.id = pic.productID AND c.id = pic.categoryId 
+            */
+            var query = from p in _context.Products
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId
+                        join c in _context.Categories on pic.CategoryId equals c.Id
+                        where pt.LanguageId == languageId
+                        select new { p, pt, pic };
+            //get category in request with the same id in table pic
+            if (request.CategoryId.HasValue && request.CategoryId.Value > 0)
+            {
+                query = query.Where(x => x.pic.CategoryId == request.CategoryId);
+            }
+            /* PAGING*/
+            int totalRow = await query.CountAsync();
+            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(x => new ProductViewModel()
+                {
+                    Id = x.p.Id,
+                    Name = x.pt.Name,
+                    Price = x.p.Price,
+                    OriginalPrice = x.p.OriginalPrice,
+                    Stock = x.p.Stock,
+                    ViewCount = x.p.ViewCount,
+                    Description = x.pt.Description,
+                    DateCreated = x.p.DateCreated,
+                    Details = x.pt.Details,
+                    SeoDescription = x.pt.SeoDescription,
+                    LanguageId = x.pt.LanguageId,
+                    SeoAlias = x.pt.SeoAlias,
+                    SeoTitle = x.pt.SeoTitle
+                }).ToListAsync();
+
+            //4.select and projection
+            var pageResult = new PagedResult<ProductViewModel>()
+            {
+                TotalRecord = totalRow,
+                Items = data
+            };
+            return pageResult;
+        }
+
     }
 }

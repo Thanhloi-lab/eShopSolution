@@ -1,4 +1,5 @@
-﻿using eShopSolution.ViewModels.System.Users;
+﻿using eShopSolution.ViewModels.Common;
+using eShopSolution.ViewModels.System.Users;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,7 +13,7 @@ namespace eShopSolution.Application.System.Users
 
         Task<bool> Register(RegisterRequest request);
 
-        //Task<PageResult<UserViewModel>> GetUserPaging(GetUserPagingRequest request);
+        Task<PagedResult<UserViewModel>> GetUserPaging(GetUserPagingRequest request);
         //Task<bool> Update(Guid id, UpdateRequest request);
         //Task<bool> RoleAssign(Guid id, RoleAssignRequest request);
 
