@@ -34,6 +34,7 @@ namespace eShopSolution.AdminApp
                 {
                     options.LoginPath = "/login/index";
                     options.AccessDeniedPath = "/user/Forbidden";
+                    
                 });
             services.AddTransient<IUserApiClient, UserApiClient>();
 

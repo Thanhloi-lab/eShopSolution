@@ -31,7 +31,7 @@ namespace eShopSolution.Application.System.Users
             _roleManager = roleManager;
         }
 
-        public async Task<string> Authenticate(LoginRequest request)
+        public async Task<ApiResult<string>> Authenticate(UserLoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
             if (user == null)
@@ -58,10 +58,27 @@ namespace eShopSolution.Application.System.Users
               expires: DateTime.Now.AddMinutes(180),
               signingCredentials: credentials);
             
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new ApiSuccessResult<string>(new JwtSecurityTokenHandler().WriteToken(token));
         }
 
-        public async Task<PagedResult<UserViewModel>> GetUserPaging(GetUserPagingRequest request)
+        public async Task<ApiResult<UserViewModel>> GetById(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return new ApiErrorResult<UserViewModel>($"Không tìm thấy tài khoản có id: {id}");
+            var userViewModel = new UserViewModel()
+            {
+                PhoneNumber = user.PhoneNumber,
+                FirstName = user.FirstName,
+                Dob = user.Dob,
+                Email = user.Email,
+                LastName = user.LastName,
+                UserName = user.UserName
+            };
+            return new ApiSuccessResult<UserViewModel>(userViewModel);
+        }
+
+        public async Task<ApiResult<PagedResult<UserViewModel>>> GetUserPaging(GetUserPagingRequest request)
         {
             var query = _userManager.Users;
             if(!string.IsNullOrEmpty(request.Keyword))
@@ -78,7 +95,7 @@ namespace eShopSolution.Application.System.Users
                     Id = x.Id,
                     PhoneNumber = x.PhoneNumber,
                     FirstName = x.FirstName,
-                    Dob=x.Dob,
+                    Dob = x.Dob,
                     Email = x.Email,
                     LastName = x.LastName,
                     UserName = x.UserName
@@ -90,14 +107,22 @@ namespace eShopSolution.Application.System.Users
                 TotalRecord = totalRow,
                 Items = data
             };
-            return pageResult;
+            return new ApiSuccessResult<PagedResult<UserViewModel>>(pageResult);
         }
 
-        public async Task<bool> Register(RegisterRequest request)
+        public async Task<ApiResult<bool>> Register(UserRegisterRequest request)
         {
-            var user = new AppUser()
+            var user = await _userManager.FindByNameAsync(request.UserName);
+            if(user != null)
             {
-
+                return new ApiErrorResult<bool>("Tài khoản đã tồn tại");
+            }
+            if(await _userManager.FindByEmailAsync(request.Email) != null)
+            {
+                return new ApiErrorResult<bool>("Email đã tồn tại");
+            }
+            user = new AppUser()
+            {
                 Dob = request.Dob,
                 UserName = request.UserName,
                 Email = request.Email,
@@ -107,8 +132,27 @@ namespace eShopSolution.Application.System.Users
             };
             var result = await _userManager.CreateAsync(user, request.Password);
             if (result.Succeeded)
-                return true;
-            return false;
+                return new ApiSuccessResult<bool>();
+            return new ApiErrorResult<bool>("Đăng ký không thành công");
+        }
+
+        public async Task<ApiResult<bool>> Update(Guid id, UserUpdateRequest request)
+        {
+            if (await _userManager.Users.AnyAsync(x=>x.Email == request.Email && x.Id != id))
+            {
+                return new ApiErrorResult<bool>("Email đã tồn tại");
+            }
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            user.Dob = request.Dob;
+            user.Email = request.Email;
+            user.PhoneNumber = request.PhoneNumber;
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+                return new ApiSuccessResult<bool>();
+            return new ApiErrorResult<bool>("Cập nhật không thành công");
         }
     }
 }

@@ -11,6 +11,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,9 +41,9 @@ namespace eShopSolution.BackendApi
                 .AddEntityFrameworkStores<EShopDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //Declare DI
             services.AddTransient<IStorageService, FileStorageService>();
-
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
