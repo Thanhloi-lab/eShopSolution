@@ -5,7 +5,7 @@ using System.Text;
 
 namespace eShopSolution.ViewModels.System.Users
 {
-    public class UserViewModel
+    public class UserUpdateRequest
     {
         public Guid Id { get; set; }
         [Display(Name = "Tên")]

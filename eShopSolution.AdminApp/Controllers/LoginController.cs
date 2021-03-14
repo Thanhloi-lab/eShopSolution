@@ -37,20 +37,28 @@ namespace eShopSolution.AdminApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(LoginRequest request)
+        public async Task<IActionResult> Index(UserLoginRequest request)
         {
             if (!ModelState.IsValid)
                 return View(ModelState);
 
             var token = await _userApiClient.Authenticate(request);
 
-            var userPrincipal = this.ValidateToken(token);
+            var userPrincipal = this.ValidateToken(token.ResultObject);
             var authProperties = new AuthenticationProperties
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
                 IsPersistent = false
             };
-            HttpContext.Session.SetString("Token", token);
+            HttpContext.Session.SetString("Token", token.ResultObject);
+            CookieOptions option = new CookieOptions();
+            
+            //if (option.Expires.HasValue)
+            //    option.Expires = DateTime.Now.AddDays(option.Expires.Value.Day);
+            //else
+            //    option.Expires = DateTime.Now.AddMilliseconds(10);
+
+            //esponse.Cookies.Append("Token", token.ResultObject, option);
             await HttpContext.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         userPrincipal,

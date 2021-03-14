@@ -5,7 +5,7 @@ using System.Text;
 
 namespace eShopSolution.ViewModels.System.Users
 {
-    public class LoginRequestValidator : AbstractValidator<LoginRequest>
+    public class LoginRequestValidator : AbstractValidator<UserLoginRequest>
     {
         public LoginRequestValidator()
         {

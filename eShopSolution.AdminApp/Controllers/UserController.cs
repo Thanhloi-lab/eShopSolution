@@ -27,20 +27,16 @@ namespace eShopSolution.AdminApp.Controllers
             _configuration = configuration;
         }
 
-        public async Task<IActionResult> Index(string keyword= "thanhloi", int pageIndex = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 1)
         {
-            
-            var sessions = HttpContext.Session.GetString("Token");
-            
             var request = new GetUserPagingRequest()
             {
-                BearerToken = sessions,
                 Keyword = keyword,
                 PageIndex = pageIndex,
-                PageSize = pageSize
+                PageSize = pageSize,
             };
             var data = await _userApiClient.GetUsersPaging(request);
-            return View(data);
+            return View(data.ResultObject);
         }
         [HttpPost]
         public async Task<IActionResult> Logout()
@@ -53,18 +49,57 @@ namespace eShopSolution.AdminApp.Controllers
         {
             return View();
         }
-
         [HttpPost]
-        public async Task<IActionResult> Create(RegisterRequest request)
+        public async Task<IActionResult> Create(UserRegisterRequest request)
         {
             if (!ModelState.IsValid)
                 return View();
 
             var result = await _userApiClient.RegisterUser(request);
-            if (result)
+            if (result.ResultObject)
                 return RedirectToAction("Index");
 
             return View(request);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var result = await _userApiClient.GetById(id);
+            if (result.IsSuccessed)
+            {
+                var user = result.ResultObject;
+                var updateRequest = new UserUpdateRequest()
+                {
+                    Dob = user.Dob,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    PhoneNumber = user.PhoneNumber,
+                    Id = id
+                };
+                return View(updateRequest);
+            }
+            return RedirectToAction("Error", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await _userApiClient.Update(request.Id, request);
+            if (result.IsSuccessed)
+                return RedirectToAction("Index");
+
+            ModelState.AddModelError("", result.Message);
+            return View(request);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var user = await _userApiClient.GetById(id);
+            return View(user.ResultObject);
         }
     }
 }
