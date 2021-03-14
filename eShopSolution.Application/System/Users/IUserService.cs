@@ -19,6 +19,6 @@ namespace eShopSolution.Application.System.Users
 
         Task<ApiResult<UserViewModel>> GetById(Guid id);
 
-        //Task<bool> Delete(Guid Id);
+        Task<ApiResult<bool>> Delete(Guid Id);
     }
 }

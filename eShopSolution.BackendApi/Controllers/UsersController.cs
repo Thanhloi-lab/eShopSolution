@@ -45,7 +45,7 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest(ModelState);
 
             var result = await _userService.Register(request);
-            if (!result.ResultObject)
+            if (!result.IsSuccessed)
             {
                 return BadRequest(result);
             }
@@ -76,6 +76,13 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             var user = await _userService.GetById(id);
+            return Ok(user);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var user = await _userService.Delete(id);
             return Ok(user);
         }
     }
