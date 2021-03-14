@@ -19,7 +19,7 @@ namespace eShopSolution.ViewModels.System.Users
         public DateTime Dob { get => dob; set => dob = value; }
         [Display(Name = "Email")]
         public string Email { get; set; }
-        [Display(Name = "Tên đăng nhập")]
+        [Display(Name = "Tài khoản")]
         public string UserName { get; set; }
         [Display(Name = "Mật khẩu")]
         public string Password { get; set; }

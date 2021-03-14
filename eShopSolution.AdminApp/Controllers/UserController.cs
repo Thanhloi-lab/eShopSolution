@@ -27,16 +27,16 @@ namespace eShopSolution.AdminApp.Controllers
             _configuration = configuration;
         }
 
-        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 1)
         {
             var request = new GetUserPagingRequest()
             {
                 Keyword = keyword,
                 PageIndex = pageIndex,
-                PageSize = pageSize
+                PageSize = pageSize,
             };
             var data = await _userApiClient.GetUsersPaging(request);
-            return View(data);
+            return View(data.ResultObject);
         }
         [HttpPost]
         public async Task<IActionResult> Logout()
@@ -94,6 +94,12 @@ namespace eShopSolution.AdminApp.Controllers
 
             ModelState.AddModelError("", result.Message);
             return View(request);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var user = await _userApiClient.GetById(id);
+            return View(user.ResultObject);
         }
     }
 }

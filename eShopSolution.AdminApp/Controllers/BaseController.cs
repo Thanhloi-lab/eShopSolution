@@ -20,7 +20,7 @@ namespace eShopSolution.AdminApp.Controllers
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var cookieValueFromContext = _httpContextAccessor.HttpContext.Request.Cookies["Token"];
+            //var cookieValueFromContext = _httpContextAccessor.HttpContext.Request.Cookies["Token"];
             var sessions = context.HttpContext.Session.GetString("Token");
             if (sessions == null)
             {
