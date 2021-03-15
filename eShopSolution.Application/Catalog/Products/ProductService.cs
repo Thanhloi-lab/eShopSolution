@@ -228,6 +228,7 @@ namespace eShopSolution.Application.Catalog.Products
         }
 
 
+
         //Product image
         public async Task<int> AddImages(int productId, ProductImageCreateRequest request)
         {
