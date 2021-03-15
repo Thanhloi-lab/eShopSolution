@@ -66,7 +66,7 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest(ModelState);
 
             var result = await _userService.Update(id, request);
-            if (!result.ResultObject)
+            if (!result.IsSuccessed)
             {
                 return BadRequest(result);
             }
@@ -84,6 +84,19 @@ namespace eShopSolution.BackendApi.Controllers
         {
             var user = await _userService.Delete(id);
             return Ok(user);
+        }
+        [HttpPut("{id}/roles")]
+        public async Task<IActionResult> RoleAssign(Guid id, [FromBody]RoleAssignRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _userService.RoleAssign(id, request);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 }

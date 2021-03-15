@@ -95,9 +95,10 @@
                                     @Html.DisplayFor(modelItem => item.Dob)
                                 </td>
                                 <td>
-                                    @Html.ActionLink("Edit", "Edit", new { item.Id }) |
-                                    @Html.ActionLink("Details", "Details", new { item.Id }) |
-                                    @Html.ActionLink("Delete", "Delete", new { item.Id })
+                                    @Html.ActionLink("Sửa", "Edit", new { item.Id }) |
+                                    @Html.ActionLink("Xem", "Details", new { item.Id }) |
+                                    @Html.ActionLink("Xóa", "Delete", new { item.Id }) |
+                                    @Html.ActionLink("Gán quyền", "RoleAssign", new { item.Id })
                                 </td>
                             </tr>
                         }

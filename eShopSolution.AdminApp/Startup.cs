@@ -36,15 +36,19 @@ namespace eShopSolution.AdminApp
                     options.AccessDeniedPath = "/user/Forbidden";
                     
                 });
-            services.AddTransient<IUserApiClient, UserApiClient>();
-
+            
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
             });
+
+
             services.AddControllersWithViews()
                 .AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>()); ;
-            
+            services.AddTransient<IUserApiClient, UserApiClient>();
+            services.AddTransient<IRoleApiClient, RoleApiClient>();
+
+
             IMvcBuilder builder = services.AddRazorPages();
             var enviroment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             #if DEBUG
