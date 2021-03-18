@@ -36,9 +36,45 @@ namespace eShopSolution.AdminApp.Services
             var respond = await client.GetAsync(url);
             var body = await respond.Content.ReadAsStringAsync();
             if (respond.IsSuccessStatusCode)
-                return JsonConvert.DeserializeObject<ApiSuccessResult<TResponse>>(body);
+            {
+                var result = JsonConvert.DeserializeObject<ApiSuccessResult<TResponse>>(body);
+                return result;
+            }
 
             return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(body);
+        }
+
+        protected async Task<List<TResponse>> GetListAsync<TResponse>(string url)
+        {
+            var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
+
+            var respond = await client.GetAsync(url);
+            var body = await respond.Content.ReadAsStringAsync();
+            if (respond.IsSuccessStatusCode)
+            {
+                List<TResponse> myDeserializedObjList = (List<TResponse>)JsonConvert.DeserializeObject(body, typeof(List<TResponse>));
+                return myDeserializedObjList;
+            }
+            return JsonConvert.DeserializeObject<List<TResponse>> (body);
+        }
+        protected async Task<TResponse> GetListPageAsync<TResponse>(string url)
+        {
+            var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
+
+            var respond = await client.GetAsync(url);
+            var body = await respond.Content.ReadAsStringAsync();
+            if (respond.IsSuccessStatusCode)
+            {
+                TResponse myDeserializedObjList = (TResponse)JsonConvert.DeserializeObject(body, typeof(TResponse));
+                return myDeserializedObjList;
+            }
+            return JsonConvert.DeserializeObject<TResponse>(body);
         }
         protected async Task<ApiResult<TResponse>> DeleteAsync<TResponse>(string url)
         {
@@ -96,5 +132,6 @@ namespace eShopSolution.AdminApp.Services
 
             return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(token);
         }
+        
     }
 }

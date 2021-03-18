@@ -1,4 +1,5 @@
 ﻿using eShopSolution.Data.Entities;
+using eShopSolution.ViewModels.Common;
 using eShopSolution.ViewModels.System.Roles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

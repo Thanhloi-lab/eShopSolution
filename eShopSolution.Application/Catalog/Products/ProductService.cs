@@ -145,9 +145,9 @@ namespace eShopSolution.Application.Catalog.Products
              * query = select *from query(--previous table--) as q, request as r
              *         where r.categoryids = pic.categoryid
              */
-            if (request.CategorieIds.Count > 0)
+            if (request.CategoryId != null && request.CategoryId!=0)
             {
-                query = query.Where(x => request.CategorieIds.Contains(x.pic.CategoryId));
+                query = query.Where(x => x.pic.CategoryId == request.CategoryId);
             }
             /* PAGING*/
             int totalRow = await query.CountAsync();
@@ -226,7 +226,6 @@ namespace eShopSolution.Application.Catalog.Products
             product.Stock += addedQuantity;
             return await _context.SaveChangesAsync() > 0;
         }
-
 
 
         //Product image
@@ -347,6 +346,8 @@ namespace eShopSolution.Application.Catalog.Products
             };
             return productViewModel;
         }
+
+
         //File
         private async Task<string> SaveFile(IFormFile file)
         {
@@ -387,7 +388,6 @@ namespace eShopSolution.Application.Catalog.Products
             }).ToListAsync();
             return data;
         }
-
         public async Task<PagedResult<ProductViewModel>> GetAllByCategoryId(GetProductPagingRequest request, string languageId)
         {
             /*

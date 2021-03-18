@@ -14,16 +14,22 @@ namespace eShopSolution.BackendApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        public ProductsController(IProductService productService)
         {
             _productService = productService;
 
         }
 
         //Products
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetManageProductPagingRequest request)
+        {
+            var products = await _productService.GetAllPaging(request);
+            return Ok(products);
+        }
         [HttpGet("{languageId}")]
         public async Task<IActionResult> Get(string languageId, [FromQuery] GetProductPagingRequest request)
         {
@@ -40,6 +46,7 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(product);
         }
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
         {
             if (!ModelState.IsValid)

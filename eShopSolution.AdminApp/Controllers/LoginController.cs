@@ -10,6 +10,7 @@ using eShopSolution.Utilities.Constant;
 using eShopSolution.ViewModels.System.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -22,17 +23,44 @@ namespace eShopSolution.AdminApp.Controllers
     {
         private readonly IUserApiClient _userApiClient;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public LoginController(IUserApiClient userApiClient,
-            IConfiguration configuration)
+            IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _userApiClient = userApiClient;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
+            var token = _httpContextAccessor.HttpContext.Request.Cookies["Token"];
+            
+            if (token != null)
+            {
+                var userPrincipal = this.ValidateToken(token);
+                if(userPrincipal == null)
+                {
+                    Response.Cookies.Delete("Token");
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return RedirectToAction("index", "login");
+                }  
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                };
+                HttpContext.Session.SetString(SystemConstant.AppSettings.DefaultLanguageId, _configuration["DefaultLanguageId"]);
+                HttpContext.Session.SetString(SystemConstant.AppSettings.Token, token);
+                await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        userPrincipal,
+                        authProperties);
+                Response.Cookies.Append("Token", token, new CookieOptions() { Expires = DateTimeOffset.Now.AddDays(30)});
+                return RedirectToAction("Index", "Home");
+            }
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return View();
         }
@@ -53,24 +81,16 @@ namespace eShopSolution.AdminApp.Controllers
             var userPrincipal = this.ValidateToken(result.ResultObject);
             var authProperties = new AuthenticationProperties
             {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                IsPersistent = false
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.Now.AddDays(30)
             };
             HttpContext.Session.SetString(SystemConstant.AppSettings.DefaultLanguageId, _configuration["DefaultLanguageId"]);
             HttpContext.Session.SetString(SystemConstant.AppSettings.Token, result.ResultObject);
-            CookieOptions option = new CookieOptions();
-            
-            //if (option.Expires.HasValue)
-            //    option.Expires = DateTime.Now.AddDays(option.Expires.Value.Day);
-            //else
-            //    option.Expires = DateTime.Now.AddMilliseconds(10);
-
-            //esponse.Cookies.Append("Token", token.ResultObject, option);
             await HttpContext.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         userPrincipal,
                         authProperties);
-
+            Response.Cookies.Append("Token", result.ResultObject, new CookieOptions(){Expires=DateTimeOffset.Now.AddDays(30)});
             return RedirectToAction("Index", "Home");
         }
 
@@ -81,14 +101,20 @@ namespace eShopSolution.AdminApp.Controllers
             SecurityToken validatedToken;
             TokenValidationParameters validationParameters = new TokenValidationParameters();
 
-            validationParameters.ValidateLifetime = true;
+            validationParameters.ValidateLifetime = false;
 
             validationParameters.ValidAudience = _configuration["Tokens:Issuer"];
             validationParameters.ValidIssuer = _configuration["Tokens:Issuer"];
             validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
-
-            ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
-
+            ClaimsPrincipal principal= null;
+            try
+            {
+                principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
             return principal;
         }
     }
