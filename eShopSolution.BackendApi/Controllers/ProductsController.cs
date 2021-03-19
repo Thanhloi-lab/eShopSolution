@@ -8,6 +8,7 @@ using eShopSolution.ViewModels.Catalog.Products;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using eShopSolution.ViewModels.Catalog.Categories;
 
 namespace eShopSolution.BackendApi.Controllers
 {
@@ -89,6 +90,19 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest();
 
             return Ok();
+        }
+        [HttpPut("{productId}/categories")]
+        public async Task<IActionResult> RoleAssign(int productId, [FromBody] CategoryAssignRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _productService.CategoryAssign(productId, request);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         //Images

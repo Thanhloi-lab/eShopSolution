@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using eShopSolution.AdminApp.Services;
+using eShopSolution.ViewModels.Catalog.Categories;
 using eShopSolution.ViewModels.Catalog.Products;
+using eShopSolution.ViewModels.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -73,6 +75,45 @@ namespace eShopSolution.AdminApp.Controllers
 
             ModelState.AddModelError("", "Tạo mới sản phẩm thất bại");
             return View(request);
+        }
+        [HttpGet]
+        public async Task<IActionResult> CategoryAssign(int Id)
+        {
+            var roleAssignRequest = await GetCategoryAssignRequest(Id, "vi-VN");
+            return View(roleAssignRequest);
+        }
+        [HttpPost]
+        public async Task<IActionResult> CategoryAssign(CategoryAssignRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+            
+            var result = await _productApiClient.CategoryAssign(request.Id, request);
+            if (result.IsSuccessed)
+            {
+                TempData["result"] = "Gán danh mục sản phẩm thành công";
+                return RedirectToAction("Index");
+            }
+            ModelState.AddModelError("", result.Message);
+            var roleAssignRequest = GetCategoryAssignRequest(request.Id, "vi-VN");
+            return View(roleAssignRequest);
+        }
+        private async Task<CategoryAssignRequest> GetCategoryAssignRequest(int productId, string languageId)
+        {
+            var productObj = await _productApiClient.GetById(productId, languageId);
+            var categoryObj = await _categoryApiClient.GetAll(languageId);
+            var categoryAssignRequest = new CategoryAssignRequest();
+            foreach (var category in categoryObj)
+            {
+                categoryAssignRequest.Categories.Add(new SelectItem()
+                {
+                    Id = category.Id.ToString(),
+                    Name = category.Name,
+                    Selected = productObj.ResultObject.Categories.Contains(category.Name)
+                }) ;
+            }
+
+            return categoryAssignRequest;
         }
     }
 }

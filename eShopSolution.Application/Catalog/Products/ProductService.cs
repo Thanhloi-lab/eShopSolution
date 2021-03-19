@@ -2,6 +2,7 @@
 using eShopSolution.Data.EF;
 using eShopSolution.Data.Entities;
 using eShopSolution.Utilities.Exceptions;
+using eShopSolution.ViewModels.Catalog.Categories;
 using eShopSolution.ViewModels.Catalog.ProductImages;
 using eShopSolution.ViewModels.Catalog.Products;
 using eShopSolution.ViewModels.Common;
@@ -92,20 +93,28 @@ namespace eShopSolution.Application.Catalog.Products
             _context.Products.Remove(product);
             return await _context.SaveChangesAsync();
         }
-        public async Task<ProductViewModel> GetById(int id, string languageId)
+        public async Task<ApiResult<ProductViewModel>> GetById(int productId, string languageId)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null) throw new eShopException($"Cannot fine a product: {id}");
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null) throw new eShopException($"Cannot fine a product: {productId}");
             var productTranslation = await _context.ProductTranslations
-                .FirstOrDefaultAsync(x => x.ProductId == id && x.LanguageId == x.LanguageId);
+                .FirstOrDefaultAsync(x => x.ProductId == productId && x.LanguageId == x.LanguageId);
+
+            var categories = await (from c in _context.Categories
+                             join ct in _context.CategoryTranslations on c.Id equals ct.CategoryId
+                             join pic in _context.ProductInCategories on c.Id equals pic.CategoryId
+                             where pic.ProductId == productId && ct.LanguageId == languageId
+                             select ct.Name).ToListAsync();
 
             ProductViewModel view = new ProductViewModel()
             {
+                Id = product.Id,
                 Stock = product.Stock,
                 DateCreated = product.DateCreated,
                 ViewCount = product.ViewCount,
                 Price = product.Price,
-                OriginalPrice = product.OriginalPrice
+                OriginalPrice = product.OriginalPrice,
+                Categories = categories
             };
             if(productTranslation !=null)
             {
@@ -118,7 +127,7 @@ namespace eShopSolution.Application.Catalog.Products
                 view.LanguageId = languageId;
                 view.Details = productTranslation.Details;
             }
-            return view;
+            return new ApiSuccessResult<ProductViewModel>(view);
         }
         public async Task<PagedResult<ProductViewModel>> GetAllPaging(GetManageProductPagingRequest request)
         {
@@ -129,10 +138,14 @@ namespace eShopSolution.Application.Catalog.Products
             */
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
-                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId
-                        join c in _context.Categories on pic.CategoryId equals c.Id
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
+                        from pic in ppic.DefaultIfEmpty()
+                        join c in _context.Categories on pic.CategoryId equals c.Id into picc
+                        from c in picc.DefaultIfEmpty()
+                        join ct in _context.CategoryTranslations on c.Id equals ct.Id into ctc
+                        from ct in ctc.DefaultIfEmpty()
                         where pt.LanguageId == request.LanguageId
-                        select new { p, pt, pic };
+                        select new { p, pt, pic, ct };
             /*
              * @request.Keyword varchar(...)
              * query = query
@@ -225,6 +238,35 @@ namespace eShopSolution.Application.Catalog.Products
             if (product == null) throw new eShopException($"Cannot fine a product: {productId}");
             product.Stock += addedQuantity;
             return await _context.SaveChangesAsync() > 0;
+        }
+        public async Task<ApiResult<bool>> CategoryAssign(int id, CategoryAssignRequest request)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return new ApiErrorResult<bool>($"Sản phẩm id:{id} không tồn tại");
+            }
+
+            foreach (var category in request.Categories)
+            {
+                var productInCategory = await _context.ProductInCategories
+                    .FirstOrDefaultAsync(x => x.CategoryId == int.Parse(category.Id) && x.ProductId == id);
+
+                if(productInCategory!=null && category.Selected==false)
+                {
+                    _context.ProductInCategories.Remove(productInCategory);
+                }
+                if(productInCategory==null && category.Selected==true)
+                {
+                    await _context.ProductInCategories.AddAsync(new ProductInCategory() 
+                    { 
+                        CategoryId = int.Parse(category.Id),
+                        ProductId = id,
+                    });
+                }
+            }
+            await _context.SaveChangesAsync();
+            return new ApiSuccessResult<bool>();
         }
 
 
@@ -438,5 +480,6 @@ namespace eShopSolution.Application.Catalog.Products
             return pageResult;
         }
 
+        
     }
 }

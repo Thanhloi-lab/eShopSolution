@@ -1,4 +1,5 @@
 ﻿using eShopSolution.Utilities.Constant;
+using eShopSolution.ViewModels.Catalog.Categories;
 using eShopSolution.ViewModels.Catalog.Products;
 using eShopSolution.ViewModels.Common;
 using Microsoft.AspNetCore.Http;
@@ -71,6 +72,17 @@ namespace eShopSolution.AdminApp.Services
                 $"/api/products/paging?pageIndex={request.PageIndex}" +
                 $"&pageSize={request.PageSize}" +
                 $"&keyword={request.Keyword}&languageId={request.LanguageId}&categoryId={request.CategoryId}");
+            return result;
+        }
+        public async Task<ApiResult<ProductViewModel>> GetById(int Id, string languageId)
+        {
+            var result = await GetAsync<ProductViewModel>($"api/products/{Id}/{languageId}");
+            return result;
+        }
+
+        public async Task<ApiResult<bool>> CategoryAssign(int productId, CategoryAssignRequest request)
+        {
+            var result = await PutAsync<bool>($"/api/products/{productId}/categories", request);
             return result;
         }
     }
