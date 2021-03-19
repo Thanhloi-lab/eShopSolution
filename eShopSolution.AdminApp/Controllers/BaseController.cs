@@ -12,26 +12,14 @@ namespace eShopSolution.AdminApp.Controllers
     
     public class BaseController : Controller
     {
-        private readonly HttpContextAccessor _httpContextAccessor;
-        //public BaseController(HttpContextAccessor httpContextAccessor)
-        //{
-        //    _httpContextAccessor = httpContextAccessor;
-        //}
-
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            //var cookieValueFromContext = _httpContextAccessor.HttpContext.Request.Cookies["Token"];
             var sessions = context.HttpContext.Session.GetString("Token");
             if (sessions == null)
             {
                 context.Result = new RedirectToActionResult("Index", "Login", null);
             }
             base.OnActionExecuting(context);
-            //if(cookieValueFromContext == null)
-            //{
-            //    context.Result = new RedirectToActionResult("Index", "Login", null);
-            //}
-            //base.OnActionExecuting(cookieValueFromContext);
         }
     }
 }

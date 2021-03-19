@@ -21,7 +21,7 @@ namespace eShopSolution.BackendApi.Controllers
         {
             _roleService = roleService;
         }
-
+        [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var roles = await _roleService.GetAll();

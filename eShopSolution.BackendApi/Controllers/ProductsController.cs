@@ -8,22 +8,29 @@ using eShopSolution.ViewModels.Catalog.Products;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using eShopSolution.ViewModels.Catalog.Categories;
 
 namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        public ProductsController(IProductService productService)
         {
             _productService = productService;
 
         }
 
         //Products
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetManageProductPagingRequest request)
+        {
+            var products = await _productService.GetAllPaging(request);
+            return Ok(products);
+        }
         [HttpGet("{languageId}")]
         public async Task<IActionResult> Get(string languageId, [FromQuery] GetProductPagingRequest request)
         {
@@ -40,6 +47,7 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(product);
         }
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
         {
             if (!ModelState.IsValid)
@@ -82,6 +90,19 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest();
 
             return Ok();
+        }
+        [HttpPut("{productId}/categories")]
+        public async Task<IActionResult> RoleAssign(int productId, [FromBody] CategoryAssignRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _productService.CategoryAssign(productId, request);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         //Images

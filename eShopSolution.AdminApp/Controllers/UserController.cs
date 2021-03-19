@@ -43,6 +43,7 @@ namespace eShopSolution.AdminApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
+            Response.Cookies.Delete("Token");
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("index", "login");
         }
@@ -161,7 +162,7 @@ namespace eShopSolution.AdminApp.Controllers
             var userObj = await _userApiClient.GetById(id);
             var roleObj = await _roleApiClient.GetAll();
             var roleAssignRequest = new RoleAssignRequest();
-            foreach (var role in roleObj.ResultObject)
+            foreach (var role in roleObj)
             {
                 roleAssignRequest.Roles.Add(new SelectItem()
                 {
