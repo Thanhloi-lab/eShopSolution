@@ -26,5 +26,6 @@ namespace eShopSolution.Application.Catalog.Products
         Task<PagedResult<ProductViewModel>> GetAllByCategoryId(GetProductPagingRequest request, string languageId);
         Task<List<ProductViewModel>> GetAll(string languageId);
         Task<ApiResult<bool>> CategoryAssign(int id, CategoryAssignRequest request);
+        Task<List<ProductViewModel>> GetFeaturedProducts(string languageId, int take);
     }
 }

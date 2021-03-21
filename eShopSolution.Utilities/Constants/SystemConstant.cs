@@ -12,5 +12,10 @@ namespace eShopSolution.Utilities.Constant
             public const string DefaultLanguageId = "DefautLanguageId";
             public const string Token = "Token";
         }
+
+        public class ProductSettings
+        {
+            public const int NumberOfFeaturedProducts = 4;
+        }
     }
 }

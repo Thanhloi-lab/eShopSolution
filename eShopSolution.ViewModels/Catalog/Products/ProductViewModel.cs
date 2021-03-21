@@ -13,6 +13,9 @@ namespace eShopSolution.ViewModels.Catalog.Products
         public int Stock { set; get; }
         public int ViewCount { set; get; }
         public DateTime DateCreated { set; get; }
+        public bool? IsFeatured { get; set; }
+
+        public string ThumbnailImage { get; set; }
 
         // Entity ProductTranslation
         public string Name { set; get; }

@@ -46,6 +46,13 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest($"Cannot find product: {productId}");
             return Ok(product);
         }
+        [HttpGet("featured/{languageId}/{take}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFeaturedProducts(int take, string languageId)
+        {
+            var products = await _productService.GetFeaturedProducts(languageId, take);
+            return Ok(products);
+        }
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
