@@ -27,20 +27,10 @@ namespace eShopSolution.AdminApp.Services
         }
 
 
-        public async Task<ApiResult<List<RolesViewModel>>> GetAll()
+        public async Task<List<RolesViewModel>> GetAll()
         {
-            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
-            var response = await client.GetAsync($"/api/roles");
-            var body = await response.Content.ReadAsStringAsync();
-            if (response.IsSuccessStatusCode)
-            {
-                List<RolesViewModel> myDeserializedObjList = (List<RolesViewModel>)JsonConvert.DeserializeObject(body, typeof(List<RolesViewModel>));
-                return new ApiSuccessResult<List<RolesViewModel>>(myDeserializedObjList);
-            }
-            return JsonConvert.DeserializeObject<ApiErrorResult<List<RolesViewModel>>>(body);
+            var result = await GetListAsync<RolesViewModel>($"/api/roles");
+            return result;
         }
     }
 }

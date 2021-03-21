@@ -28,6 +28,7 @@ namespace eShopSolution.AdminApp.Services
         public async Task<ApiResult<string>> Authenticate(UserLoginRequest request)
         {
             var result = await AuthenticateAsync<string>("/api/Users/authenticate", request);
+            CookieOptions option = new CookieOptions();
             return result;
         }
         public async Task<ApiResult<bool>> Delete(Guid id)
@@ -42,16 +43,10 @@ namespace eShopSolution.AdminApp.Services
         }
         public async Task<ApiResult<PagedResult<UserViewModel>>> GetUsersPaging(GetUserPagingRequest request)
         {
-            var client = _httpClientFactory.CreateClient();
-            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
-
-            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
-            var response = await client.GetAsync($"/api/users/paging?pageIndex=" +
+            var result = await GetAsync<PagedResult<UserViewModel>> ($"/api/users/paging?pageIndex=" +
                 $"{request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}");
-            var body = await response.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PagedResult<UserViewModel>>>(body);
-            return users;
+
+            return result;
         }
         public async Task<ApiResult<bool>> RegisterUser(UserRegisterRequest registerRequest)
         {

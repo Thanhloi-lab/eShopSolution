@@ -30,25 +30,23 @@ namespace eShopSolution.AdminApp
             //services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddHttpClient();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
+                .AddCookie( options =>
                 {
                     options.LoginPath = "/login/index";
                     options.AccessDeniedPath = "/user/Forbidden";
-                    
                 });
             
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.IdleTimeout = TimeSpan.MaxValue;
             });
-
-
+            
             services.AddControllersWithViews()
                 .AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>()); ;
             services.AddTransient<IUserApiClient, UserApiClient>();
             services.AddTransient<IRoleApiClient, RoleApiClient>();
-
-
+            services.AddTransient<IProductApiClient, ProductApiClient>();
+            services.AddTransient<ICategoryApiClient, CategoryApiClient>();
             IMvcBuilder builder = services.AddRazorPages();
             var enviroment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             #if DEBUG
