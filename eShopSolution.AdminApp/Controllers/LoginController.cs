@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using eShopSolution.AdminApp.Services;
+using eShopSolution.ApiIntergration;
 using eShopSolution.Utilities.Constant;
 using eShopSolution.ViewModels.System.Users;
 using Microsoft.AspNetCore.Authentication;

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using eShopSolution.Application.System.Users;
 using eShopSolution.ViewModels.System.Users;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eShopSolution.BackendApi.Controllers
@@ -24,22 +21,23 @@ namespace eShopSolution.BackendApi.Controllers
 
         [HttpPost("authenticate")]
         [AllowAnonymous]
-        public async Task<IActionResult> Authenticate([FromBody] UserLoginRequest request)
+        public async Task<IActionResult> Authenticate([FromBody]UserLoginRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var resultToken = await _userService.Authenticate(request);
+            var result = await _userService.Authenticate(request);
 
-            if (string.IsNullOrEmpty(resultToken.ResultObject))
+            if (string.IsNullOrEmpty(result.ResultObject))
             {
-                return BadRequest(resultToken);
+                return BadRequest(result);
             }
-            return Ok(resultToken);
+            return Ok(result);
         }
+
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
+        public async Task<IActionResult> Register([FromBody]UserRegisterRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -51,16 +49,10 @@ namespace eShopSolution.BackendApi.Controllers
             }
             return Ok(result);
         }
-        //http://localhost/api/users/paging?pageIndex=1&pageSize=10&keyword=
-        [HttpGet("paging")]
-        public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
-        {
-            var products = await _userService.GetUserPaging(request);
-            return Ok(products);
-        }
-        //http://localhost/api/users/id=
+
+        //PUT: http://localhost/api/users/id
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateRequest request)
+        public async Task<IActionResult> Update(Guid id, [FromBody]UserUpdateRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -72,19 +64,7 @@ namespace eShopSolution.BackendApi.Controllers
             }
             return Ok(result);
         }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            var user = await _userService.GetById(id);
-            return Ok(user);
-        }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var user = await _userService.Delete(id);
-            return Ok(user);
-        }
         [HttpPut("{id}/roles")]
         public async Task<IActionResult> RoleAssign(Guid id, [FromBody]RoleAssignRequest request)
         {
@@ -96,6 +76,28 @@ namespace eShopSolution.BackendApi.Controllers
             {
                 return BadRequest(result);
             }
+            return Ok(result);
+        }
+
+        //http://localhost/api/users/paging?pageIndex=1&pageSize=10&keyword=
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery]GetUserPagingRequest request)
+        {
+            var products = await _userService.GetUserPaging(request);
+            return Ok(products);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var user = await _userService.GetById(id);
+            return Ok(user);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _userService.Delete(id);
             return Ok(result);
         }
     }

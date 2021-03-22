@@ -16,11 +16,13 @@ namespace eShopSolution.BackendApi.Controllers
     [Authorize]
     public class RolesController : ControllerBase
     {
-        private readonly IRolesService _roleService;
-        public RolesController(IRolesService roleService)
+        private readonly IRoleService _roleService;
+
+        public RolesController(IRoleService roleService)
         {
             _roleService = roleService;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
