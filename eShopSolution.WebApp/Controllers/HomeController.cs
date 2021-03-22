@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,7 +7,6 @@ using eShopSolution.WebApp.Models;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Http;
 using eShopSolution.ApiIntergration;
-using System.Globalization;
 using eShopSolution.Utilities.Constant;
 
 namespace eShopSolution.WebApp.Controllers

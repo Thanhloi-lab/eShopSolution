@@ -58,7 +58,7 @@ namespace eShopSolution.ApiIntergration
                 List<TResponse> myDeserializedObjList = (List<TResponse>)JsonConvert.DeserializeObject(body, typeof(List<TResponse>));
                 return myDeserializedObjList;
             }
-            return JsonConvert.DeserializeObject<List<TResponse>> (body);
+            return JsonConvert.DeserializeObject<List<TResponse>>(body);
         }
         protected async Task<TResponse> GetListPageAsync<TResponse>(string url)
         {
@@ -104,7 +104,7 @@ namespace eShopSolution.ApiIntergration
 
             return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(result);
         }
-        protected async Task<ApiResult<TResponse>> PutAsync<TResponse>(string url, Object obj)
+        protected async Task<ApiResult<TResponse>> PutAsync<TResponse>(string url, object obj)
         {
             var client = _httpClientFactory.CreateClient();
             var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
@@ -132,6 +132,6 @@ namespace eShopSolution.ApiIntergration
 
             return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(token);
         }
-        
+
     }
 }
