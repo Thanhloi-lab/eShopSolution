@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Http;
 using eShopSolution.ApiIntergration;
 using eShopSolution.Utilities.Constant;
+using System.Collections.Generic;
+using eShopSolution.ViewModels.Catalog.Products;
+using System.Linq;
 
 namespace eShopSolution.WebApp.Controllers
 {
@@ -34,8 +37,32 @@ namespace eShopSolution.WebApp.Controllers
                 FeaturedProducts = await _productApiClient.GetFeaturedProducts("vi-VN", SystemConstant.ProductSettings.NumberOfFeaturedProducts),
                 LastestProducts = await _productApiClient.GetLastestProducts("vi-VN", SystemConstant.ProductSettings.NumberOfLastestProducts)
             };
-
+            viewModel.FeaturedProducts = await GetProductImages(viewModel.FeaturedProducts);
+            viewModel.LastestProducts = await GetProductImages(viewModel.LastestProducts);
             return View(viewModel);
+        }
+        public async Task<List<ProductViewModel>> GetProductImages(List<ProductViewModel> products)
+        {
+            foreach (var item in products)
+            {
+                var images = await _productApiClient.GetListImages(item.Id);
+                if (images != null)
+                {
+                    if (images.Count > 0)
+                    {
+                        foreach (var image in images)
+                        {
+                            if (image.IsDefault == true)
+                                item.ThumbnailImage = image.ImagePath;
+                        }
+                        if (item.ThumbnailImage == null)
+                        {
+                            item.ThumbnailImage = images.ElementAt(0).ImagePath;
+                        }
+                    }
+                }
+            }
+            return products;
         }
 
         public IActionResult Privacy()

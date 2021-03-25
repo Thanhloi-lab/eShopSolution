@@ -58,15 +58,16 @@ namespace eShopSolution.WebApp
             {
                 endpoints.MapControllerRoute(
                     name: "Product Category",
-                    pattern: "vi-VN/categories/{id}", new
+                    pattern: "{languageId}/categories/{id}", new
                     {
                         controller = "Product",
-                        action = "Category"
+                        action = "Category",
+                        
                     });
 
                 endpoints.MapControllerRoute(
                     name: "Product Detail",
-                    pattern: "vi-VN/products/{id}", new
+                    pattern: "{languageId}/products/{id}", new
                     {
                         controller = "Product",
                         action = "Detail"
