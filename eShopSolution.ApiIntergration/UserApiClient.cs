@@ -32,9 +32,9 @@ namespace eShopSolution.ApiIntergration
             CookieOptions option = new CookieOptions();
             return result;
         }
-        public async Task<ApiResult<bool>> Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
-            var result = await DeleteAsync<bool>($"/api/users/{id}");
+            var result = await DeleteAsync($"/api/users/{id}");
             return result;
         }
         public async Task<ApiResult<UserViewModel>> GetById(Guid id)

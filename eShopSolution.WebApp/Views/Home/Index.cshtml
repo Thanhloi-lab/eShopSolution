@@ -1,5 +1,6 @@
 ﻿@model HomeViewModel
 @using eShopSolution.ViewModels.Catalog.Products;
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration;
 
 @{ ViewData["Title"] = "Home Page"; }
 
@@ -18,7 +19,7 @@
                                 <p>@slide.Description</p>
                             </div>
                         </div>
-                    </div>                }
+                    </div>}
             </div>
             <a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
             <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
@@ -31,37 +32,44 @@
         <div id="featured" class="carousel slide">
             <div class="carousel-inner">
                 @{ List<List<ProductViewModel>> featuredProducts = new List<List<ProductViewModel>>();
-                                List<ProductViewModel> featuredPart = new List<ProductViewModel>(); }
+                    List<ProductViewModel> featuredPart = new List<ProductViewModel>(); }
 
                 @for (int index = 0; index < Model.FeaturedProducts.Count; index++)
                 {
                     featuredPart.Add(Model.FeaturedProducts[index]);
-                    if (featuredPart.Count == 4 || Model.FeaturedProducts.Count < 4)
+                    if (featuredPart.Count == 4)
                     {
                         featuredProducts.Add(featuredPart);
+                        if (index == Model.FeaturedProducts.Count - 1)
+                            break;
                         featuredPart = new List<ProductViewModel>();
+                    }
+                    if (index == Model.FeaturedProducts.Count - 1)
+                    {
+                        featuredProducts.Add(featuredPart);
                     }
 
                 }
                 @for (int index = 0; index < featuredProducts.Count; index++)
                 {
                     <div class="item @(index == 0?"active":"")">
-                    <ul class="thumbnails">
-                    @foreach (var item in featuredProducts[index])
-                    {
-                        var url = $"/vi-VN/Products/{item.Id}";
-                        <li class="span3">
-                            <div class="thumbnail">
-                                <i class="tag"></i>
-                                <a href="@url"><img src="@(@"https://localhost:5002/user-content/" + item.ThumbnailImage)" alt="@item.Name"></a>
-                                <div class="caption">
-                                    <h5>@item.Name</h5>
-                                    <h4><a class="btn" href="" localize-content>VIEW</a> <span class="pull-right">@item.Price.ToString()</span></h4>
-                                </div>
-                            </div>
-                        </li>}
-                    </ul>
-                </div>
+                        <ul class="thumbnails">
+                            @foreach (var item in featuredProducts[index])
+                            {
+                                var url = $"/{item.LanguageId}/Products/{item.Id}";
+                                <li class="span3">
+                                    <div class="thumbnail">
+                                        <i class="tag"></i>
+                                        <a href="@url"><img src="@Configuration["BaseAddress"]/user-content/@item.ThumbnailImage" alt="@item.Name"></a>
+                                        <div class="caption">
+                                            <h5>@item.Name</h5>
+                                            <h4><a class="btn" href="" localize-content>VIEW</a> <span class="pull-right">@item.Price.ToString()&#8363</span></h4>
+                                        </div>
+                                    </div>
+                                </li>
+}
+                        </ul>
+                    </div>
                 }
             </div>
             <a class="left carousel-control" href="#featured" data-slide="prev">‹</a>
@@ -77,14 +85,14 @@
         var url = $"/vi-VN/products/{item.Id}";
         <li class="span3">
             <div class="thumbnail">
-                <a href="@url"><img src="@(@"https://localhost:5002/user-content/" + item.ThumbnailImage)" alt="@item.Name" /></a>
+                <a href="@url"><img src="@Configuration["BaseAddress"]/user-content/@item.ThumbnailImage" alt="@item.Name" /></a>
                 <div class="caption">
                     <h5>@item.Name</h5>
                     <p>@item.Description</p>
                     <h4 style="text-align:center">
                         <a class="btn" href="#"><i class="icon-zoom-in"></i></a>
-                        <a class="btn" href="#">Add to <i class="icon-shopping-cart"></i></a> 
-                        <a class="btn btn-primary" href="#">@item.Price</a>
+                        <a class="btn" href="#">Add to <i class="icon-shopping-cart"></i></a>
+                        <a class="btn btn-primary" href="#">@item.Price&#8363</a>
                     </h4>
                 </div>
             </div>

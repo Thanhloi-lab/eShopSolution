@@ -1,6 +1,7 @@
 ﻿using eShopSolution.ApiIntergration;
 using eShopSolution.Utilities.Constant;
 using eShopSolution.ViewModels.Catalog.Categories;
+using eShopSolution.ViewModels.Catalog.ProductImages;
 using eShopSolution.ViewModels.Catalog.Products;
 using eShopSolution.ViewModels.Common;
 using Microsoft.AspNetCore.Http;
@@ -66,7 +67,6 @@ namespace eShopSolution.ApiIntergration
             var response = await client.PostAsync($"/api/products/", requestContent);
             return response.IsSuccessStatusCode;
         }
-
         public async Task<PagedResult<ProductViewModel>> GetPagings(GetManageProductPagingRequest request)
         {
             var result = await GetListPageAsync<PagedResult<ProductViewModel>>(
@@ -80,7 +80,6 @@ namespace eShopSolution.ApiIntergration
             var result = await GetAsync<ProductViewModel>($"api/products/{Id}/{languageId}");
             return result;
         }
-
         public async Task<ApiResult<bool>> CategoryAssign(int productId, CategoryAssignRequest request)
         {
             var result = await PutAsync<bool>($"/api/products/{productId}/categories", request);
@@ -95,6 +94,48 @@ namespace eShopSolution.ApiIntergration
         {
             var data = await GetListAsync<ProductViewModel>($"/api/products/lastest/{languageId}/{take}");
             return data;
+        }
+        public async Task<bool> UpdateProduct(ProductUpdateRequest request)
+        {
+            var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
+
+            var requestContent = new MultipartFormDataContent();
+
+            if (request.ThumbnailImage != null)
+            {
+                byte[] data;
+                using (var br = new BinaryReader(request.ThumbnailImage.OpenReadStream()))
+                {
+                    data = br.ReadBytes((int)request.ThumbnailImage.OpenReadStream().Length);
+
+                }
+                ByteArrayContent bytes = new ByteArrayContent(data);
+                requestContent.Add(bytes, "ThumbnailImage", request.ThumbnailImage.FileName);
+            }
+
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.Name) ? "" : request.Name.ToString()), "name");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.Description) ? "" : request.Description.ToString()), "description");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.Details) ? "" : request.Details.ToString()), "details");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.SeoDescription) ? "" : request.SeoDescription.ToString()), "seoDescription");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.SeoTitle) ? "" : request.SeoTitle.ToString()), "seoTitle");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.SeoAlias) ? "" : request.SeoAlias.ToString()), "seoAlias");
+            requestContent.Add(new StringContent("vi-VN"), "languageId");
+
+            var response = await client.PutAsync($"/api/products/" + request.Id, requestContent);
+            return response.IsSuccessStatusCode;
+        }
+        public async Task<List<ProductImageViewModel>> GetListImages(int productId)
+        {
+            var data = await GetListAsync<ProductImageViewModel>($"/api/products/{productId}/images");
+            return data;
+        }
+        public async Task<bool> DeleteProduct(ProductDeleteRequest request)
+        {
+            var result = await DeleteAsync($"/api/products/{request.Id}");
+            return result;
         }
     }
 }

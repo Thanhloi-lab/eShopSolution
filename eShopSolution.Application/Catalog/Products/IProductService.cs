@@ -11,7 +11,7 @@ namespace eShopSolution.Application.Catalog.Products
     public interface IProductService
     {
         Task<int> Create(ProductCreateRequest request); 
-        Task<int> Update(ProductUpdateRequest request);
+        Task<int> Update(int productId, ProductUpdateRequest request);
         Task<int> Delete(int productId);
         Task<bool> UpdatePrice(int productId, decimal newPrice);
         Task<bool> UpdateStock(int productId, int addedQuantity);

@@ -77,6 +77,62 @@ namespace eShopSolution.AdminApp.Controllers
             return View(request);
         }
         [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var product = await _productApiClient.GetById(id, "vi-VN");
+            var productViewModel = new ProductUpdateRequest()
+            {
+                Id = id,
+                Name = product.ResultObject.Name,
+                Description = product.ResultObject.Description,
+                Details = product.ResultObject.Details,
+                SeoAlias = product.ResultObject.SeoAlias,
+                SeoDescription = product.ResultObject.SeoDescription,
+                SeoTitle = product.ResultObject.SeoTitle,
+                ThumbnailImage = null
+            };
+            return View(productViewModel);
+        }
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> Edit([FromForm] ProductUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await _productApiClient.UpdateProduct(request);
+            if (result)
+            {
+                TempData["result"] = "Chỉnh sửa sản phẩm thành công";
+                return RedirectToAction("Index");
+            }
+
+            ModelState.AddModelError("", "Chỉnh sửa sản phẩm thất bại");
+            return View(request);
+        }
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            return View(new ProductDeleteRequest()
+            {
+                Id = id
+            });
+        }
+        [HttpPost]
+        public async Task<IActionResult> Delete(ProductDeleteRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await _productApiClient.DeleteProduct(request);
+            if (result)
+            {
+                TempData["result"] = "Xóa sản phẩm thành công";
+                return RedirectToAction("Index");
+            }
+            return View(request);
+        }
+        [HttpGet]
         public async Task<IActionResult> CategoryAssign(int Id)
         {
             var roleAssignRequest = await GetCategoryAssignRequest(Id, "vi-VN");
@@ -87,7 +143,7 @@ namespace eShopSolution.AdminApp.Controllers
         {
             if (!ModelState.IsValid)
                 return View();
-            
+
             var result = await _productApiClient.CategoryAssign(request.Id, request);
             if (result.IsSuccessed)
             {
@@ -110,7 +166,7 @@ namespace eShopSolution.AdminApp.Controllers
                     Id = category.Id.ToString(),
                     Name = category.Name,
                     Selected = productObj.ResultObject.Categories.Contains(category.Name)
-                }) ;
+                });
             }
 
             return categoryAssignRequest;

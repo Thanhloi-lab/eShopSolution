@@ -43,7 +43,6 @@ namespace eShopSolution.ApiIntergration
 
             return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(body);
         }
-
         protected async Task<List<TResponse>> GetListAsync<TResponse>(string url)
         {
             var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
@@ -76,18 +75,17 @@ namespace eShopSolution.ApiIntergration
             }
             return JsonConvert.DeserializeObject<TResponse>(body);
         }
-        protected async Task<ApiResult<TResponse>> DeleteAsync<TResponse>(string url)
+        protected async Task<bool> DeleteAsync(string url)
         {
             var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
-
+            
             var respond = await client.DeleteAsync(url);
-            var body = await respond.Content.ReadAsStringAsync();
             if (respond.IsSuccessStatusCode)
-                return JsonConvert.DeserializeObject<ApiSuccessResult<TResponse>>(body);
-            return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(body);
+                return true;
+            return false;
         }
         protected async Task<ApiResult<TResponse>> PostAsync<TResponse>(string url, object obj)
         {

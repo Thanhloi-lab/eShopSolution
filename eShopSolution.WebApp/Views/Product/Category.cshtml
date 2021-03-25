@@ -1,8 +1,115 @@
-﻿
+﻿@using eShopSolution.ViewModels.Catalog.Products
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration;
+@model ProductCategoryViewModel
 @{
-    ViewData["Title"] = "Category";
+    ViewData["Title"] = Model.Category.Name + (Model.Products.PageIndex == 1 ? "" : "-" + Model.Products.PageIndex);
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Category</h1>
+<ul class="breadcrumb">
+    <li><a href="index.html">Home</a> <span class="divider">/</span></li>
+    <li class="active">@Model.Category.Name</li>
+</ul>
+<h3> @Model.Category.Name <small class="pull-right"> About @Model.Products.Items.Count product available</small></h3>
+<hr class="soft" />
+<p>
+    Products in @Model.Category.Name
+</p>
+<hr class="soft" />
+<form class="form-horizontal span6">
+    <div class="control-group">
+        <label class="control-label alignL">Sort By </label>
+        <select>
+            <option>Priduct name A - Z</option>
+            <option>Priduct name Z - A</option>
+            <option>Priduct Stoke</option>
+            <option>Price Lowest first</option>
+        </select>
+    </div>
+</form>
+
+<div id="myTab" class="pull-right">
+    <a href="#listView" data-toggle="tab"><span class="btn btn-large"><i class="icon-list"></i></span></a>
+    <a href="#blockView" data-toggle="tab"><span class="btn btn-large btn-primary"><i class="icon-th-large"></i></span></a>
+</div>
+<br class="clr" />
+<div class="tab-content">
+    <div class="tab-pane" id="listView">
+        @for (int i = 0; i < Model.Products.Items.Count; i++)
+        {
+            ProductViewModel item = Model.Products.Items[i];
+            var url = $"/vi-VN/Products/{item.Id}";
+            <div class="row">
+                <div class="span2">
+                    <img src="@Configuration["BaseAddress"]/user-content/@item.ThumbnailImage" alt="@item.Name" />
+                </div>
+                <div class="span4">
+                    @if (item.Stock > 0)
+                    {
+                        <h3 style="color:#00ff00">
+                            Available
+                        </h3>
+                    }
+                    @if (item.Stock <= 0)
+                    {
+                        <h3 style="color:#ff0000">
+                            Sold out
+                        </h3>
+                    }
+
+                    <hr class="soft" />
+                    <h5>@item.Name </h5>
+                    <p>
+                        @item.Description
+                    </p>
+                    <a class="btn btn-small pull-right" href="@url">View Details</a>
+                    <br class="clr" />
+                </div>
+                <div class="span3 alignR">
+                    <form class="form-horizontal qtyFrm">
+                        <h3> @item.Price</h3>
+                        <label class="checkbox">
+                            <input type="checkbox">  Adds product to compair
+                        </label><br />
+
+                        <a href="product_details.html" class="btn btn-large btn-primary"> Add to <i class=" icon-shopping-cart"></i></a>
+                        <a href="product_details.html" class="btn btn-large"><i class="icon-zoom-in"></i></a>
+
+                    </form>
+                </div>
+            </div>
+            <hr class="soft" />
+        }
+
+    </div>
+    <div class="tab-pane  active" id="blockView">
+        <ul class="thumbnails">
+            @for (int i = 0; i < Model.Products.Items.Count; i++)
+            {
+                ProductViewModel item = Model.Products.Items[i];
+                var url = $"/vi-VN/Products/{item.Id}";
+
+                <li class="span3">
+                    <div class="thumbnail">
+                        <a href="@url"><img src="@Configuration["BaseAddress"]/user-content/@item.ThumbnailImage" alt="@item.Name" /></a>
+                        <div class="caption">
+                            <h5>@item.Name</h5>
+                            <p>
+                                @item.Description
+                            </p>
+                            <h4 style="text-align:center"><a class="btn" href="@url"> <i class="icon-zoom-in"></i></a> <a class="btn" href="#">Add to <i class="icon-shopping-cart"></i></a> <a class="btn btn-primary" href="#">&ETH;@item.Price</a></h4>
+                        </div>
+                    </div>
+                </li>
+
+            }
+        </ul>
+        <hr class="soft" />
+    </div>
+</div>
+
+@*<a href="compair.html" class="btn btn-large pull-right">Compair Product</a>*@
+
+@await Component.InvokeAsync("Pager", Model.Products);
+<br class="clr" />
 

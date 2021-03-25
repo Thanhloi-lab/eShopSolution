@@ -127,7 +127,7 @@ namespace eShopSolution.AdminApp.Controllers
                 return View();
 
             var result = await _userApiClient.Delete(request.Id);
-            if (result.IsSuccessed)
+            if (result)
             {
                 TempData["result"] = "Xóa người dùng thành công";
                 return RedirectToAction("Index");

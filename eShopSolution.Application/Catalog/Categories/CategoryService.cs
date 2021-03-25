@@ -30,5 +30,36 @@ namespace eShopSolution.Application.Catalog.Categories
                 ParentId = x.c.ParentId
             }).ToListAsync();
         }
+
+        public async Task<List<CategoryViewModel>> GetAllCategoryByProductId(int productId, string languageId)
+        {
+            var query = from c in _context.Categories 
+                        join ct in _context.CategoryTranslations on c.Id equals ct.Id
+                        join pic in _context.ProductInCategories on c.Id equals pic.CategoryId
+                        join p in _context.Products on pic.ProductId equals p.Id
+                        where p.Id == productId && ct.LanguageId == languageId
+                        select new {c, ct};
+            var categories = await query.Select(x=>new CategoryViewModel()
+            {
+                Id = x.c.Id,
+                Name = x.ct.Name,
+                ParentId = x.c.ParentId
+            }).ToListAsync();
+            return categories;
+        }
+
+        public async Task<CategoryViewModel> GetById(string languageId, int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            var categoryTranslation = await _context.CategoryTranslations
+                    .FirstOrDefaultAsync(x => x.LanguageId == languageId && x.CategoryId == id);
+            CategoryViewModel model = new CategoryViewModel()
+            {
+                Id = category.Id,
+                Name = categoryTranslation.Name == null? "N/A": categoryTranslation.Name,
+                ParentId = category.ParentId
+            };
+            return model;
+        }
     }
 }
