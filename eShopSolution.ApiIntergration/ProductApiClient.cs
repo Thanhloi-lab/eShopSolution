@@ -53,14 +53,14 @@ namespace eShopSolution.ApiIntergration
                 ByteArrayContent bytes = new ByteArrayContent(data);
                 requestContent.Add(bytes, "ThumbnailImage", request.ThumbnailImage.FileName);
             }
-            requestContent.Add(new StringContent(request.Name), "name");
             requestContent.Add(new StringContent(request.Price.ToString()), "price");
             requestContent.Add(new StringContent(request.OriginalPrice.ToString()), "originalPrice");
-            requestContent.Add(new StringContent(request.SeoAlias), "seoAlias");
-            requestContent.Add(new StringContent(request.SeoDescription), "seoDescription");
-            requestContent.Add(new StringContent(request.SeoTitle), "seoTitle");
-            requestContent.Add(new StringContent(request.Details), "details");
-            requestContent.Add(new StringContent(request.Description), "description");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.Name) ? "" : request.Name.ToString()), "name");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.Description) ? "" : request.Description.ToString()), "description");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.Details) ? "" : request.Details.ToString()), "details");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.SeoDescription) ? "" : request.SeoDescription.ToString()), "seoDescription");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.SeoTitle) ? "" : request.SeoTitle.ToString()), "seoTitle");
+            requestContent.Add(new StringContent(string.IsNullOrEmpty(request.SeoAlias) ? "" : request.SeoAlias.ToString()), "seoAlias");
             requestContent.Add(new StringContent(request.Stock.ToString()), "stock");
             requestContent.Add(new StringContent("vi-VN"), "languageId");
 
@@ -85,9 +85,12 @@ namespace eShopSolution.ApiIntergration
             var result = await PutAsync<bool>($"/api/products/{productId}/categories", request);
             return result;
         }
-        public async Task<List<ProductViewModel>> GetFeaturedProducts(string languageId, int take)
+        public async Task<PagedResult<ProductViewModel>> GetFeaturedProducts(GetManageProductPagingRequest request)
         {
-            var data = await GetListAsync<ProductViewModel>($"/api/products/featured/{languageId}/{take}");
+            var data = await GetListPageAsync<PagedResult<ProductViewModel>>($"/api/products/featured?pageIndex={request.PageIndex}" +
+                $"&pageSize={request.PageSize}" +
+                $"&keyword={request.Keyword}&languageId={request.LanguageId}" +
+                $"&categoryId={request.CategoryId}");
             return data;
         }
         public async Task<List<ProductViewModel>> GetLastestProducts(string languageId, int take)

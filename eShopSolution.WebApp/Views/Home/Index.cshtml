@@ -11,7 +11,7 @@
                 @for (int index = 0; index < Model.Slides.Count; index++)
                 {
                     var slide = Model.Slides[index];
-                    <div class="item @(index == 0?"active":"")">
+                    <div class="item @(index == 0 ? "active" : "")">
                         <div class="container">
                             <a href="/@slide.Url"><img style="width:100%" src="@slide.Image" alt="@slide.Name" /></a>
                             <div class="carousel-caption">
@@ -27,24 +27,24 @@
     </div>
 }
 <div class="well well-small">
-    <h4><localize>Featured Products</localize> <small class="pull-right">200+ featured products</small></h4>
+    <h4><localize>Featured Products</localize> <small class="pull-right">@Model.FeaturedProducts.Items.Count Featured product</small></h4>
     <div class="row-fluid">
         <div id="featured" class="carousel slide">
             <div class="carousel-inner">
                 @{ List<List<ProductViewModel>> featuredProducts = new List<List<ProductViewModel>>();
                     List<ProductViewModel> featuredPart = new List<ProductViewModel>(); }
 
-                @for (int index = 0; index < Model.FeaturedProducts.Count; index++)
+                @for (int index = 0; index < Model.FeaturedProducts.Items.Count; index++)
                 {
-                    featuredPart.Add(Model.FeaturedProducts[index]);
+                    featuredPart.Add(Model.FeaturedProducts.Items[index]);
                     if (featuredPart.Count == 4)
                     {
                         featuredProducts.Add(featuredPart);
-                        if (index == Model.FeaturedProducts.Count - 1)
+                        if (index == Model.FeaturedProducts.Items.Count - 1)
                             break;
                         featuredPart = new List<ProductViewModel>();
                     }
-                    if (index == Model.FeaturedProducts.Count - 1)
+                    if (index == Model.FeaturedProducts.Items.Count - 1)
                     {
                         featuredProducts.Add(featuredPart);
                     }
@@ -52,7 +52,7 @@
                 }
                 @for (int index = 0; index < featuredProducts.Count; index++)
                 {
-                    <div class="item @(index == 0?"active":"")">
+                    <div class="item @(index == 0 ? "active" : "")">
                         <ul class="thumbnails">
                             @foreach (var item in featuredProducts[index])
                             {
@@ -67,13 +67,24 @@
                                         </div>
                                     </div>
                                 </li>
-}
+                            }
                         </ul>
                     </div>
                 }
             </div>
-            <a class="left carousel-control" href="#featured" data-slide="prev">‹</a>
-            <a class="right carousel-control" href="#featured" data-slide="next">›</a>
+            <a class="left carousel-control" href="#featured" data-slide="prev">
+                &lsaquo;
+                @{if (Model.FeaturedProducts.PageIndex > 1)
+                        Model.FeaturedProducts.PageIndex--;
+                }
+            </a>
+            <a class="right carousel-control" href="#featured" data-slide="next">
+                &rsaquo;
+                @{if (Model.FeaturedProducts.PageIndex < Model.FeaturedProducts.PageCount)
+                        Model.FeaturedProducts.PageIndex++;
+                }
+            </a>
+
         </div>
     </div>
 </div>

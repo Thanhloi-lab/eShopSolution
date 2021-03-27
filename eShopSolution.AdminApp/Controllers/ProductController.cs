@@ -26,7 +26,7 @@ namespace eShopSolution.AdminApp.Controllers
             _productApiClient = productApiClient;
             _categoryApiClient = categoryApiClient;
         }
-        public async Task<IActionResult> Index(string keyword, int? categoryId, int pageIndex = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string keyword, int? categoryId, int pageIndex = 1, int pageSize = 3)
         {
             var request = new GetManageProductPagingRequest()
             {
@@ -109,6 +109,12 @@ namespace eShopSolution.AdminApp.Controllers
 
             ModelState.AddModelError("", "Chỉnh sửa sản phẩm thất bại");
             return View(request);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Details(int id, string languageId)
+        {
+            var result = await _productApiClient.GetById(id, languageId);
+            return View(result.ResultObject);
         }
         [HttpGet]
         public IActionResult Delete(int id)
