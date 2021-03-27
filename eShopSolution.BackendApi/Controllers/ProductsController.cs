@@ -37,10 +37,10 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(product);
         }
 
-        [HttpGet("featured/{languageId}/{take}")]
-        public async Task<IActionResult> GetFeaturedProducts(int take, string languageId)
+        [HttpGet("featured")]
+        public async Task<IActionResult> GetFeaturedProducts([FromQuery] GetManageProductPagingRequest request)
         {
-            var products = await _productService.GetFeaturedProducts(languageId, take);
+            var products = await _productService.GetFeaturedProducts(request);
             return Ok(products);
         }
 

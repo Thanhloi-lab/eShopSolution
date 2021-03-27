@@ -55,9 +55,9 @@ namespace eShopSolution.Application.System.Users
             var token = new JwtSecurityToken(_configuration["Tokens:Issuer"],
               _configuration["Tokens:Issuer"],
               claims,
-              expires: DateTime.Now.AddMinutes(180),
+              expires: DateTime.Now.AddDays(30),
               signingCredentials: credentials);
-            var prop = new AuthenticationProperties();
+            //var prop = new AuthenticationProperties();
             return new ApiSuccessResult<string>(new JwtSecurityTokenHandler().WriteToken(token));
         }
 

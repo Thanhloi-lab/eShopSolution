@@ -185,20 +185,27 @@ namespace eShopSolution.Application.Catalog.Products
                     //ThumbnailImage = x.pi.ImagePath
                 }).ToListAsync();
             List<ProductViewModel> products = new List<ProductViewModel>();
-            for (int i = 0; i < data.Count-1; i++)
+            if (totalRow > 1)
             {
-                if(data.ElementAt(i).Id == data.ElementAt(i+1).Id)
+                for (int i = 0; i < data.Count - 1; i++)
                 {
-                    totalRow--;
+                    if (data.ElementAt(i).Id == data.ElementAt(i + 1).Id)
+                    {
+                        totalRow--;
+                    }
+                    else
+                    {
+                        products.Add(data.ElementAt(i));
+                    }
+                    if (i == data.Count - 2)
+                    {
+                        products.Add(data.ElementAt(i + 1));
+                    }
                 }
-                else
-                {
-                    products.Add(data.ElementAt(i));
-                }
-                if(i== data.Count - 2)
-                {
-                    products.Add(data.ElementAt(i+1));
-                }
+            }
+            else if(totalRow == 1)
+            {
+                products.Add(data.ElementAt(0));
             }
             //4.select and projection
             var pageResult = new PagedResult<ProductViewModel>()
@@ -285,19 +292,18 @@ namespace eShopSolution.Application.Catalog.Products
             await _context.SaveChangesAsync();
             return new ApiSuccessResult<bool>();
         }
-        public async Task<List<ProductViewModel>> GetFeaturedProducts(string languageId, int take)
+        public async Task<PagedResult<ProductViewModel>> GetFeaturedProducts(GetManageProductPagingRequest request)
         {
             //1. Select join
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
-                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
-                        from pic in ppic.DefaultIfEmpty()
-                        join c in _context.Categories on pic.CategoryId equals c.Id into picc
-                        from c in picc.DefaultIfEmpty()
-                        where pt.LanguageId == languageId && p.IsFeatured == true
-                        select new { p, pt, pic };
+                        
+                        where pt.LanguageId == request.LanguageId && p.IsFeatured == true
+                        select new { p, pt };
 
-            var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
+            var data = await query.OrderByDescending(x => x.p.DateCreated)
+                .Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
                 .Select(x => new ProductViewModel()
                 {
                     Id = x.p.Id,
@@ -314,8 +320,15 @@ namespace eShopSolution.Application.Catalog.Products
                     Stock = x.p.Stock,
                     ViewCount = x.p.ViewCount,
                 }).ToListAsync();
-
-            return data;
+            int totalRow = await query.CountAsync();
+            var pageResult = new PagedResult<ProductViewModel>()
+            {
+                TotalRecords = totalRow,
+                Items = data,
+                PageSize = request.PageSize,
+                PageIndex = request.PageIndex
+            };
+            return pageResult;
         }
         public async Task<List<ProductViewModel>> GetLastestProducts(string languageId, int take)
         {
@@ -326,8 +339,8 @@ namespace eShopSolution.Application.Catalog.Products
                         from pic in ppic.DefaultIfEmpty()
                         join c in _context.Categories on pic.CategoryId equals c.Id into picc
                         from c in picc.DefaultIfEmpty()
-                        where pt.LanguageId == languageId 
-                        select new { p, pt, pic};
+                        where pt.LanguageId == languageId
+                        select new { p, pt };//, pic};
 
             var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take)
                 .Select(x => new ProductViewModel()
@@ -345,7 +358,7 @@ namespace eShopSolution.Application.Catalog.Products
                     SeoTitle = x.pt.SeoTitle,
                     Stock = x.p.Stock,
                     ViewCount = x.p.ViewCount,
-                }).ToListAsync();
+                }).Distinct().ToListAsync();
             
             return data;
         }

@@ -29,15 +29,21 @@ namespace eShopSolution.WebApp.Controllers
             _productApiClient = productApiClient;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string languageId, int id, int pageIndex = 1, int pageSize = SystemConstant.ProductSettings.NumberOfLastestProducts)
         {
+            GetManageProductPagingRequest request = new GetManageProductPagingRequest()
+            {
+                LanguageId = "vi-VN",
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+            };
             var viewModel = new HomeViewModel
             {
                 Slides = await _slideApiClient.GetAll(),
-                FeaturedProducts = await _productApiClient.GetFeaturedProducts("vi-VN", SystemConstant.ProductSettings.NumberOfFeaturedProducts),
+                FeaturedProducts = await _productApiClient.GetFeaturedProducts(request),
                 LastestProducts = await _productApiClient.GetLastestProducts("vi-VN", SystemConstant.ProductSettings.NumberOfLastestProducts)
             };
-            viewModel.FeaturedProducts = await GetProductImages(viewModel.FeaturedProducts);
+            viewModel.FeaturedProducts.Items = await GetProductImages(viewModel.FeaturedProducts.Items);
             viewModel.LastestProducts = await GetProductImages(viewModel.LastestProducts);
             return View(viewModel);
         }

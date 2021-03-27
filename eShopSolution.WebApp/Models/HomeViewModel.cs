@@ -1,4 +1,5 @@
 ﻿using eShopSolution.ViewModels.Catalog.Products;
+using eShopSolution.ViewModels.Common;
 using eShopSolution.ViewModels.Utilities.Slides;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace eShopSolution.WebApp.Models
     {
         public List<SlideViewModel> Slides { get; set; }
 
-        public List<ProductViewModel> FeaturedProducts { get; set; }
+        public PagedResult<ProductViewModel> FeaturedProducts { get; set; }
         public List<ProductViewModel> LastestProducts { get; set; }
     }
 }
