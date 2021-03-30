@@ -53,7 +53,7 @@ namespace eShopSolution.BackendApi
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IRolesService, RolesService>();
+            services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<ISlideService, SlideService>();
 
             //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();

@@ -30,7 +30,7 @@ namespace eShopSolution.ApiIntergration
 
         public async Task<List<RolesViewModel>> GetAll()
         {
-            var result = await GetListAsync<RolesViewModel>($"/api/roles");
+            var result = await GetListAsync<RolesViewModel>("/api/Roles");
             return result;
         }
     }

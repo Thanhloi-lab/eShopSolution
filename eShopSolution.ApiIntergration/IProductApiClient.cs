@@ -17,7 +17,7 @@ namespace eShopSolution.ApiIntergration
         Task<bool> UpdateProduct(ProductUpdateRequest request);
         Task<bool> DeleteProduct(ProductDeleteRequest request);
         Task<ApiResult<bool>> CategoryAssign(int productId, CategoryAssignRequest request);
-        Task<ApiResult<ProductViewModel>> GetById(int productId, string languageId);
+        Task<ProductViewModel> GetById(int productId, string languageId);
         Task<PagedResult<ProductViewModel>> GetFeaturedProducts(GetManageProductPagingRequest request);
         Task<List<ProductViewModel>> GetLastestProducts(string languageId, int take);
         Task<List<ProductImageViewModel>> GetListImages(int productId);

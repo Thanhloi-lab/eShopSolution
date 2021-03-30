@@ -28,8 +28,7 @@ namespace eShopSolution.ApiIntergration
         }
         public async Task<ApiResult<string>> Authenticate(UserLoginRequest request)
         {
-            var result = await AuthenticateAsync<string>("/api/Users/authenticate", request);
-            CookieOptions option = new CookieOptions();
+            var result = await PostAsync<string>("/api/Users/authenticate", request);
             return result;
         }
         public async Task<bool> Delete(Guid id)
@@ -37,12 +36,12 @@ namespace eShopSolution.ApiIntergration
             var result = await DeleteAsync($"/api/users/{id}");
             return result;
         }
-        public async Task<ApiResult<UserViewModel>> GetById(Guid id)
+        public async Task<UserViewModel> GetById(Guid id)
         {
             var result = await GetAsync<UserViewModel>($"/api/users/{id}");
             return result;
         }
-        public async Task<ApiResult<PagedResult<UserViewModel>>> GetUsersPaging(GetUserPagingRequest request)
+        public async Task<PagedResult<UserViewModel>> GetUsersPaging(GetUserPagingRequest request)
         {
             var result = await GetAsync<PagedResult<UserViewModel>> ($"/api/users/paging?pageIndex=" +
                 $"{request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}");

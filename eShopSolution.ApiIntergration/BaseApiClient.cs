@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -26,23 +25,23 @@ namespace eShopSolution.ApiIntergration
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
         }
-        protected async Task<ApiResult<TResponse>> GetAsync<TResponse>(string url)
-        {
-            var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
+        //protected async Task<TResponse> GetAsync<TResponse>(string url)
+        //{
+        //    var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
+        //    var client = _httpClientFactory.CreateClient();
+        //    client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+        //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
 
-            var respond = await client.GetAsync(url);
-            var body = await respond.Content.ReadAsStringAsync();
-            if (respond.IsSuccessStatusCode)
-            {
-                var result = JsonConvert.DeserializeObject<ApiSuccessResult<TResponse>>(body);
-                return result;
-            }
+        //    var respond = await client.GetAsync(url);
+        //    var body = await respond.Content.ReadAsStringAsync();
+        //    if (respond.IsSuccessStatusCode)
+        //    {
+        //        var result = JsonConvert.DeserializeObject<TResponse>(body);
+        //        return result;
+        //    }
 
-            return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(body);
-        }
+        //    return JsonConvert.DeserializeObject<TResponse>(body);
+        //}
         protected async Task<List<TResponse>> GetListAsync<TResponse>(string url)
         {
             var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
@@ -59,7 +58,7 @@ namespace eShopSolution.ApiIntergration
             }
             return JsonConvert.DeserializeObject<List<TResponse>>(body);
         }
-        protected async Task<TResponse> GetListPageAsync<TResponse>(string url)
+        protected async Task<TResponse> GetAsync<TResponse>(string url)
         {
             var session = _httpContextAccessor.HttpContext.Session.GetString(SystemConstant.AppSettings.Token);
             var client = _httpClientFactory.CreateClient();
@@ -89,11 +88,10 @@ namespace eShopSolution.ApiIntergration
         }
         protected async Task<ApiResult<TResponse>> PostAsync<TResponse>(string url, object obj)
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-
             var json = JsonConvert.SerializeObject(obj);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
 
             var respond = await client.PostAsync(url, httpContent);
             var result = await respond.Content.ReadAsStringAsync();
@@ -118,18 +116,18 @@ namespace eShopSolution.ApiIntergration
 
             return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(result);
         }
-        protected async Task<ApiResult<TResponse>> AuthenticateAsync<TResponse>(string url, object obj)
-        {
-            var json = JsonConvert.SerializeObject(obj);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+        //protected async Task<ApiResult<TResponse>> AuthenticateAsync<TResponse>(string url, object obj)
+        //{
+        //    var json = JsonConvert.SerializeObject(obj);
+        //    var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+        //    var client = _httpClientFactory.CreateClient();
+        //    client.BaseAddress = new Uri(_configuration["BaseAddress"]);
 
-            var respond = await client.PostAsync(url, httpContent);
-            var token = await respond.Content.ReadAsStringAsync();
+        //    var respond = await client.PostAsync(url, httpContent);
+        //    var token = await respond.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(token);
-        }
+        //    return JsonConvert.DeserializeObject<ApiErrorResult<TResponse>>(token);
+        //}
 
     }
 }

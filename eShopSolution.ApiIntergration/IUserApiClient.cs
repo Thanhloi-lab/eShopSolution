@@ -10,9 +10,9 @@ namespace eShopSolution.ApiIntergration
     public interface IUserApiClient
     {
         public Task<ApiResult<string>> Authenticate(UserLoginRequest login);
-        public Task<ApiResult<PagedResult<UserViewModel>>> GetUsersPaging(GetUserPagingRequest request);
+        public Task<PagedResult<UserViewModel>> GetUsersPaging(GetUserPagingRequest request);
         public Task<ApiResult<bool>> RegisterUser(UserRegisterRequest registerRequest);
-        Task<ApiResult<UserViewModel>> GetById(Guid id);
+        Task<UserViewModel> GetById(Guid id);
         Task<ApiResult<bool>> Update(Guid id, UserUpdateRequest request);
         Task<bool> Delete(Guid id);
         Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request);

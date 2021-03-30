@@ -36,13 +36,13 @@ namespace eShopSolution.WebApp.Controllers
                 categories.Add(category);
             }
             var products = new List<ProductViewModel>();
-            products.Add(product.ResultObject);
+            products.Add(product);
             products = await GetProductImages(products);
-            product.ResultObject = products.ElementAt(0);
+            product = products.ElementAt(0);
             return View(new ProductDetailViewModel() 
             { 
                 Categories = categories,
-                Product = product.ResultObject
+                Product = product
             });
         }
 

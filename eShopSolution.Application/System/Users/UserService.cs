@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -39,14 +40,17 @@ namespace eShopSolution.Application.System.Users
             var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
             if (!result.Succeeded)
                 return new ApiErrorResult<string>("Mật khẩu không chính xác");
-            var roles = _userManager.GetRolesAsync(user);
-            var claims = new[]
+            var roles = await _userManager.GetRolesAsync(user);
+            var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.GivenName, user.FirstName),
-                new Claim(ClaimTypes.Role, string.Join(";", roles)),
                 new Claim(ClaimTypes.Name, user.LastName)
             };
+            foreach (var item in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, item));
+            }
 
             //the document: https://topdev.vn/blog/json-web-token-la-gi/
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));

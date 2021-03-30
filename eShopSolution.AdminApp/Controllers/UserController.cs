@@ -5,12 +5,14 @@ using eShopSolution.ViewModels.Common;
 using eShopSolution.ViewModels.System.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
 namespace eShopSolution.AdminApp.Controllers
 {
+    [Authorize]
     public class UserController : BaseController
     {
         private readonly IUserApiClient _userApiClient;
@@ -23,7 +25,6 @@ namespace eShopSolution.AdminApp.Controllers
             _configuration = configuration;
             _roleApiClient = roleApiClient;
         }
-
         public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
         {
             var request = new GetUserPagingRequest()
@@ -38,7 +39,7 @@ namespace eShopSolution.AdminApp.Controllers
                 ViewBag.success = TempData["result"];
             }
             var data = await _userApiClient.GetUsersPaging(request);
-            return View(data.ResultObject);
+            return View(data);
         }
         [HttpPost]
         public async Task<IActionResult> Logout()
@@ -47,11 +48,13 @@ namespace eShopSolution.AdminApp.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("index", "login");
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create(UserRegisterRequest request)
         {
@@ -69,13 +72,14 @@ namespace eShopSolution.AdminApp.Controllers
             ModelState.AddModelError("", result.Message);
             return View(request);
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
             var result = await _userApiClient.GetById(id);
-            if (result.IsSuccessed)
+            if (result!=null)
             {
-                var user = result.ResultObject;
+                var user = result;
                 var updateRequest = new UserUpdateRequest()
                 {
                     Dob = user.Dob,
@@ -89,6 +93,7 @@ namespace eShopSolution.AdminApp.Controllers
             }
             return RedirectToAction("Error", "Home");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Edit(UserUpdateRequest request)
         {
@@ -106,20 +111,33 @@ namespace eShopSolution.AdminApp.Controllers
             ModelState.AddModelError("", result.Message);
             return View(request);
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
+            //var currentUserClaims = User.Claims;
+
+            //foreach (var item in currentUserClaims)
+            //{
+            //    if (item.Value.Equals("Admin"))
+            //    {
+            //        RedirectToAction("Index", "Home");
+            //    }
+            //}
             var result = await _userApiClient.GetById(id);
-            return View(result.ResultObject);
+            return View(result);
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Delete(Guid id)
         {
+
             return View(new UserDeleteRequest()
             {
                 Id = id
             });
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Delete(UserDeleteRequest request)
         {
@@ -135,12 +153,14 @@ namespace eShopSolution.AdminApp.Controllers
 
             return View(request);
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> RoleAssign(Guid id)
         {
             var roleAssignRequest = await GetRoleAssignRequest(id);
             return View(roleAssignRequest);
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> RoleAssign(RoleAssignRequest request)
         {
@@ -157,6 +177,7 @@ namespace eShopSolution.AdminApp.Controllers
             var roleAssignRequest = GetRoleAssignRequest(request.Id);
             return View(roleAssignRequest);
         }
+        [Authorize(Roles = "Admin")]
         private async Task<RoleAssignRequest> GetRoleAssignRequest(Guid id)
         {
             var userObj = await _userApiClient.GetById(id);
@@ -168,10 +189,15 @@ namespace eShopSolution.AdminApp.Controllers
                 {
                     Id = role.Id.ToString(),
                     Name = role.Name,
-                    Selected = userObj.ResultObject.Roles.Contains(role.Name)
+                    Selected = userObj.Roles.Contains(role.Name)
                 });
             }
             return roleAssignRequest;
+        }
+        public IActionResult Forbidden()
+        {
+            ModelState.AddModelError("Forbidden", "You are not allow to do that action");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

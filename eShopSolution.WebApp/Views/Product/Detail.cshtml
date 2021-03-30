@@ -7,7 +7,19 @@
 
 <ul class="breadcrumb">
     <li><a href="/">Home</a> <span class="divider">/</span></li>
-    <li><a href="/@Model.Product.LanguageId/Categories/@Model.Categories[0].Id">@Model.Categories[0].Name</a> <span class="divider">/</span></li>
+    @{
+        if (Model.Categories.Count>0)
+        {
+            <li><a href="/@Model.Product.LanguageId/Categories/@Model.Categories[0].Id">@Model.Categories[0].Name</a> <span class="divider">/</span></li>
+        }
+        else
+        {
+            <li><a href="#">N/A</a> <span class="divider">/</span></li>
+        }
+    }
+
+
+
     <li class="active">@Model.Product.Name</li>
 </ul>
 <div class="row">

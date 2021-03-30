@@ -110,6 +110,7 @@ namespace eShopSolution.AdminApp.Controllers
             try
             {
                 principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
+                
             }
             catch (Exception e)
             {

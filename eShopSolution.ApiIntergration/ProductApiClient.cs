@@ -41,8 +41,8 @@ namespace eShopSolution.ApiIntergration
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
 
             var requestContent = new MultipartFormDataContent();
-            
-            if(request.ThumbnailImage!=null)
+
+            if (request.ThumbnailImage != null)
             {
                 byte[] data;
                 using (var br = new BinaryReader(request.ThumbnailImage.OpenReadStream()))
@@ -69,13 +69,13 @@ namespace eShopSolution.ApiIntergration
         }
         public async Task<PagedResult<ProductViewModel>> GetPagings(GetManageProductPagingRequest request)
         {
-            var result = await GetListPageAsync<PagedResult<ProductViewModel>>(
+            var result = await GetAsync<PagedResult<ProductViewModel>>(
                 $"/api/products/paging?pageIndex={request.PageIndex}" +
                 $"&pageSize={request.PageSize}" +
                 $"&keyword={request.Keyword}&languageId={request.LanguageId}&categoryId={request.CategoryId}");
             return result;
         }
-        public async Task<ApiResult<ProductViewModel>> GetById(int Id, string languageId)
+        public async Task<ProductViewModel> GetById(int Id, string languageId)
         {
             var result = await GetAsync<ProductViewModel>($"api/products/{Id}/{languageId}");
             return result;
@@ -87,7 +87,7 @@ namespace eShopSolution.ApiIntergration
         }
         public async Task<PagedResult<ProductViewModel>> GetFeaturedProducts(GetManageProductPagingRequest request)
         {
-            var data = await GetListPageAsync<PagedResult<ProductViewModel>>($"/api/products/featured?pageIndex={request.PageIndex}" +
+            var data = await GetAsync<PagedResult<ProductViewModel>>($"/api/products/featured?pageIndex={request.PageIndex}" +
                 $"&pageSize={request.PageSize}" +
                 $"&keyword={request.Keyword}&languageId={request.LanguageId}" +
                 $"&categoryId={request.CategoryId}");

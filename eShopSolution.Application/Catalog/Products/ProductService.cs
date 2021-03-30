@@ -221,10 +221,11 @@ namespace eShopSolution.Application.Catalog.Products
         {
             //get product with the same ID of request
             var product = await _context.Products.FindAsync(productId);
+            if (product == null) throw new eShopException($"Cannot fine a product: {productId}");
             //get productTranslation with the same productID and languageID of request
             var productTranslation = await _context.ProductTranslations
                 .FirstOrDefaultAsync(x => x.ProductId == productId && x.LanguageId == request.LanguageId);
-            if (product == null) throw new eShopException($"Cannot fine a product: {productId}");
+            
             //old = new
             productTranslation.Name = request.Name;
             productTranslation.SeoAlias = request.SeoAlias;

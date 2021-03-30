@@ -83,12 +83,12 @@ namespace eShopSolution.AdminApp.Controllers
             var productViewModel = new ProductUpdateRequest()
             {
                 Id = id,
-                Name = product.ResultObject.Name,
-                Description = product.ResultObject.Description,
-                Details = product.ResultObject.Details,
-                SeoAlias = product.ResultObject.SeoAlias,
-                SeoDescription = product.ResultObject.SeoDescription,
-                SeoTitle = product.ResultObject.SeoTitle,
+                Name = product.Name,
+                Description = product.Description,
+                Details = product.Details,
+                SeoAlias = product.SeoAlias,
+                SeoDescription = product.SeoDescription,
+                SeoTitle = product.SeoTitle,
                 ThumbnailImage = null
             };
             return View(productViewModel);
@@ -114,7 +114,7 @@ namespace eShopSolution.AdminApp.Controllers
         public async Task<IActionResult> Details(int id, string languageId)
         {
             var result = await _productApiClient.GetById(id, languageId);
-            return View(result.ResultObject);
+            return View(result);
         }
         [HttpGet]
         public IActionResult Delete(int id)
@@ -171,7 +171,7 @@ namespace eShopSolution.AdminApp.Controllers
                 {
                     Id = category.Id.ToString(),
                     Name = category.Name,
-                    Selected = productObj.ResultObject.Categories.Contains(category.Name)
+                    Selected = productObj.Categories.Contains(category.Name)
                 });
             }
 
